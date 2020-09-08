@@ -2,9 +2,9 @@
     "name": "osmphp/core",
     "autoload": {
         "psr-4": {
-            "OsmPhp\\Core\\": "src/",
-            "OsmPhp\\Core\\Tests\\": "tests/",
-            "OsmPhp\\Core\\Samples\\": "samples/"
+            "Osm\\Core\\": "src/",
+            "Osm\\Core\\Tests\\": "tests/",
+            "Osm\\Core\\Samples\\": "samples/"
         }
     },
     "require": {
