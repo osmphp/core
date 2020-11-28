@@ -1,5 +1,13 @@
 {
     "name": "osmphp/core",
+    "description": "PHP library for handling extensible modules",
+    "license": "GPL-3.0-only",
+    "authors": [
+        {
+            "name": "Vladislav Osmianskij",
+            "email": "vlaosm@gmail.com"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Osm\\Core\\": "src/",
