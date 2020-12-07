@@ -10,6 +10,8 @@ use Osm\Samples\Compilation\SampleClass;
 
 class CompilationTest extends UnitTestCase
 {
+    public $module = self::NO_MODULE; // the test class is not bound to a module
+
     public function test_that_traits_add_and_advise_methods() {
         $sample = SampleClass::new();
         $derived = DerivedClass::new();

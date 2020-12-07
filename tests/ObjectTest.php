@@ -7,6 +7,8 @@ use Osm\Samples\Objects\HelloObject_;
 
 class ObjectTest extends UnitTestCase
 {
+    public $module = self::NO_MODULE; // the test class is not bound to a module
+
     protected $count = 0;
     public function __set($name, $value) {
         $this->$name = $value;

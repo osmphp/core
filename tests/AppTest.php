@@ -3,11 +3,12 @@
 namespace Osm\Core\Tests;
 
 use Osm\Core\App;
-use Osm\Core\Object_;
 use Osm\Framework\Testing\Tests\UnitTestCase;
 
 class AppTest extends UnitTestCase
 {
+    public $module = self::NO_MODULE; // the test class is not bound to a module
+
     public function test_that_tests_are_executed() {
         $this->assertTrue(true);
     }
