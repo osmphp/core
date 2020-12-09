@@ -178,7 +178,7 @@ class Compiler extends Object_
     }
 
     protected function isHintClass($class) {
-        return preg_match('/\\\\Hints\\\\[a-zA-Z0-9_]*Hint$/', $class);
+        return preg_match('/\\\\Hints\\\\[a-zA-Z0-9_]*$/', $class);
     }
 
     protected function addHintsToClasses() {
