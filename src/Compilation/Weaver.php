@@ -141,16 +141,11 @@ class Weaver extends Object_
                 $use .= ', ';
             }
 
-            if ($parameter->getClass()) {
-                $params .= '\\' . $parameter->getClass()->getName() . ' ';
-            }
-
-            if ($parameter->isArray()) {
-                $params .= 'array ';
-            }
-
-            if ($parameter->isCallable()) {
-                $params .= 'callable ';
+            if ($type = $parameter->getType()) {
+                if (!$type->isBuiltin()) {
+                    $params .= '\\';
+                }
+                $params .= $type->getName() . ' ';
             }
 
             if ($parameter->isPassedByReference()) {
