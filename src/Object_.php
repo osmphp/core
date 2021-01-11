@@ -114,6 +114,11 @@ class Object_ implements \ArrayAccess
     }
 
     protected function default($property) {
+        $method = "get_{$property}";
+        if (method_exists($this, $method)) {
+            return $this->$method();
+        }
+
         return null;
     }
 
