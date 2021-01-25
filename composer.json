@@ -1,6 +1,6 @@
 {
     "name": "osmphp/core",
-    "description": "PHP library for handling extensible modules",
+    "description": "PHP library for making modular and extensible applications",
     "license": "GPL-3.0-only",
     "authors": [
         {
@@ -8,28 +8,28 @@
             "email": "vlaosm@gmail.com"
         }
     ],
+    "require": {
+        "php": ">=8.0",
+        "ext-mbstring": "*",
+        "symfony/lock": "^5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9",
+        "symfony/process": "^5"
+    },
     "autoload": {
+        "files": [
+            "src/functions.php"
+        ],
         "psr-4": {
-            "Osm\\Core\\": "src/",
-            "Osm\\Core\\Tests\\": "tests/",
-            "Osm\\Core\\Samples\\": "samples/"
+            "Osm\\Runtime\\": "src/",
+            "Osm\\Core\\": "modules/"
         }
     },
-    "require": {
-        "php": ">=8.0"
-    },
-    "extra": {
-        "osm": {
-            "component_pools": {
-                "src": {
-                    "module_path": "*/Module.php",
-                    "theme_path": "*/theme.php"
-                },
-                "samples": {
-                    "module_path": "*/Module.php",
-                    "testing": true
-                }
-            }
+    "autoload-dev": {
+        "psr-4": {
+            "Osm\\Runtime\\Tests\\": "tests/",
+            "Osm\\Runtime\\SampleModules\\": "sample-modules/"
         }
     }
 }
