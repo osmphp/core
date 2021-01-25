@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Osm\Runtime;
 
 use Osm\Core\App;
+use Osm\Runtime\Attributes\Runs;
 use Osm\Runtime\Exceptions\Abort;
 use Osm\Runtime\Exceptions\AbortTimeout;
+use Osm\Runtime\Exceptions\PropertyNotSet;
 use Osm\Runtime\Loading\AppLoader;
 use function Osm\make_dir;
 use function Osm\make_dir_for;
@@ -14,13 +16,14 @@ use function Osm\make_dir_for;
 /**
  * Constructor parameters:
  *
- * @property string $app_name
+ * @property string $app_class_name
  * @property string $env_name
- * @property bool $load_from_autoload_dev
+ * @property bool $autoload_dev
  * @property Runtime $runtime
  *
  * Computed:
  *
+ * @property string $app_name
  * @property string $project_path The project directory. By default,
  *      assumed that the project is in current directory
  * @property string $generated_path A directory where all the generated files
@@ -38,8 +41,8 @@ use function Osm\make_dir_for;
 class Factory extends Object_
 {
     /** @noinspection PhpUnused */
-    protected function get_app_name(): string {
-        return 'osm';
+    protected function get_app_class_name(): string {
+        throw new PropertyNotSet(__METHOD__);
     }
 
     /** @noinspection PhpUnused */
@@ -55,6 +58,18 @@ class Factory extends Object_
     /** @noinspection PhpUnused */
     protected function get_generated_path(): string {
         return "{$this->project_path}/generated";
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_app_name(): string {
+        $result = $this->app_class_name;
+
+        if (str_ends_with($result, '\\App')) {
+            $result = mb_substr($result, 0,
+                mb_strlen($result) - mb_strlen('\\App'));
+        }
+
+        return str_replace('\\', '_', $result);
     }
 
     /** @noinspection PhpUnused */
@@ -162,7 +177,10 @@ class Factory extends Object_
      * Compiles the application
      */
     public function compile(): void {
-        $this->app = App::new();
+        $new = "{$this->app_class_name}::new";
+        $this->app = $new();
+
+        $this->loadApp();
 
         // collects module groups and modules that are relevant for this app,
         // in their dependency order
@@ -183,7 +201,6 @@ class Factory extends Object_
     }
 
     protected function collectModules() {
-        AppLoader::new()->load();
 //        ModuleGroupSorter::new()->sort();
 //        ModuleSorter::new()->sort();
     }
@@ -201,6 +218,11 @@ class Factory extends Object_
 
     protected function generateApp() {
         file_put_contents(make_dir_for($this->app_ser_path), serialize($this->app));
+    }
+
+    #[Runs(AppLoader::class)]
+    protected function loadApp(): void {
+         AppLoader::new()->load();
     }
 
 }

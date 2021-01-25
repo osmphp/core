@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Core\Base;
 
+use Osm\Core\App;
 use Osm\Core\Object_;
 
 /**
@@ -15,6 +16,8 @@ use Osm\Core\Object_;
  */
 class Module extends Object_
 {
+    public string $app_class_name = App::class;
+
     /**
      * @var string[]
      */

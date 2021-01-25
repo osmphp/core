@@ -6,6 +6,7 @@ namespace Osm\Runtime\Loading;
 
 use Osm\Core\App;
 use Osm\Core\Base\ModuleGroup;
+use Osm\Runtime\Attributes\Runs;
 use Osm\Runtime\Factory;
 use Osm\Runtime\Object_;
 
@@ -60,7 +61,19 @@ class ModuleGroupLoader extends Object_
             'path' => rtrim($this->path, "/\\"),
         ]);
 
-        return ($instance instanceof ModuleGroup) ? $instance : null;
+        if (!($instance instanceof ModuleGroup)) {
+            return null;
+        }
+
+        if (!class_exists($instance->app_class_name)) {
+            return null;
+        }
+
+        if (!is_a($this->app, $instance->app_class_name)) {
+            return null;
+        }
+
+        return $instance;
     }
 
     /** @noinspection PhpUnused */
@@ -90,15 +103,20 @@ class ModuleGroupLoader extends Object_
         foreach (glob($this->module_glob_pattern,
             GLOB_ONLYDIR | GLOB_MARK) as $path)
         {
-            $namespace = $this->namespace . ltrim(mb_substr($path,
-                mb_strlen($this->module_group_path)), "/\\");
+            $namespace = $this->namespace . str_replace('/', '\\',
+                ltrim(mb_substr($path, mb_strlen($this->module_group_path)), "/\\"));
             $path = ltrim(mb_substr($path, mb_strlen($this->project_path)), "/\\");
 
-            ModuleLoader::new([
-                'module_group_loader' => $this,
-                'namespace' => $namespace,
-                'path' => $path,
-            ])->load();
+            $this->loadModule($namespace, $path);
         }
+    }
+
+    #[Runs(ModuleLoader::class)]
+    protected function loadModule(string $namespace, string $path): void {
+        ModuleLoader::new([
+            'module_group_loader' => $this,
+            'namespace' => $namespace,
+            'path' => $path,
+        ])->load();
     }
 }

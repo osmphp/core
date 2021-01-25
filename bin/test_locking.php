@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Osm\Runtime\Factory;
 use Osm\Runtime\Runtime;
+use Osm\Core\Samples\App;
 
 /**
  * This is a simple script for manual testing of the Factory::lock() method,
@@ -43,7 +44,7 @@ use Osm\Runtime\Runtime;
 
 require 'vendor/autoload.php';
 
-Runtime::new()->factory(['app_name' => 'custom'], function(Factory $factory) {
+Runtime::new()->factory(['app_class_name' => App::class], function(Factory $factory) {
     echo "Starting\n";
 
     $wait = 100; //ms

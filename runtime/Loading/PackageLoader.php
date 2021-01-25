@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Loading;
 
+use Osm\Runtime\Attributes\Runs;
 use Osm\Runtime\Factory;
 use Osm\Runtime\Hints\Package;
 use Osm\Runtime\Object_;
@@ -18,7 +19,7 @@ use Osm\Runtime\Object_;
  * Computed:
  *
  * @property string $path
- * @property bool $load_from_autoload_dev
+ * @property bool $autoload_dev
  */
 class PackageLoader extends Object_
 {
@@ -33,16 +34,16 @@ class PackageLoader extends Object_
     }
 
     /** @noinspection PhpUnused */
-    protected function get_load_from_autoload_dev(): ?bool {
+    protected function get_autoload_dev(): ?bool {
         global $osm_factory; /* @var Factory $osm_factory */
 
-        return $osm_factory->load_from_autoload_dev;
+        return $osm_factory->autoload_dev;
     }
 
     public function load(): void {
         $this->loadSection('autoload');
 
-        if ($this->load_from_autoload_dev) {
+        if ($this->autoload_dev) {
             $this->loadSection('autoload-dev');
         }
     }
@@ -53,11 +54,16 @@ class PackageLoader extends Object_
                 $path = "{$this->path}/{$path}";
             }
 
-            ModuleGroupLoader::new([
-                'package_loader' => $this,
-                'namespace' => $namespace,
-                'path' => $path,
-            ])->load();
+            $this->loadModuleGroup($namespace, $path);
         }
+    }
+
+    #[Runs(ModuleGroupLoader::class)]
+    protected function loadModuleGroup(string $namespace, string $path): void {
+        ModuleGroupLoader::new([
+            'package_loader' => $this,
+            'namespace' => $namespace,
+            'path' => $path,
+        ])->load();
     }
 }

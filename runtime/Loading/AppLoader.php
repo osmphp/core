@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Loading;
 
+use Osm\Runtime\Attributes\Runs;
 use Osm\Runtime\Factory;
 use Osm\Runtime\Hints\ComposerLock;
 use Osm\Runtime\Hints\Package;
@@ -35,16 +36,29 @@ class AppLoader extends Object_
 
     public function load(): void {
         foreach ($this->composer_lock->packages as $package) {
+            $this->loadPackage($package);
             PackageLoader::new([
                 'package' => $package,
                 'app_loader' => $this,
             ])->load();
         }
 
-        PackageLoader::new([
-            'name' => '',
-            'package' => $this->composer_json,
+        $this->loadPackage($this->composer_json, name: '');
+    }
+
+    #[Runs(PackageLoader::class)]
+    protected function loadPackage(\stdClass|Package $package,
+        ?string $name = null): void
+    {
+        $data = [
+            'package' => $package,
             'app_loader' => $this,
-        ])->load();
+        ];
+
+        if ($name !== null) {
+            $data['name'] = $name;
+        }
+
+        PackageLoader::new($data)->load();
     }
 }

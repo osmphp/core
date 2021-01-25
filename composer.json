@@ -22,14 +22,14 @@
             "src/functions.php"
         ],
         "psr-4": {
-            "Osm\\Runtime\\": "src/",
-            "Osm\\Core\\": "modules/"
+            "Osm\\Runtime\\": "runtime/",
+            "Osm\\Core\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Osm\\Runtime\\Tests\\": "tests/",
-            "Osm\\Runtime\\SampleModules\\": "sample-modules/"
+            "Osm\\Core\\Tests\\": "tests/",
+            "Osm\\Core\\Samples\\": "samples/"
         }
     }
 }

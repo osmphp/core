@@ -2,36 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Osm\Runtime;
+namespace Osm\Core;
 
-use Osm\Runtime\Traits\HasComputedProperties;
+use Osm\Runtime\Object_ as BaseObject;
 
-/**
- * Generic base class
- */
-class Object_
+class Object_ extends BaseObject
 {
-    use HasComputedProperties;
-
-    public static function new(array $data = []): static {
-        if (isset($data['class'])) {
-            $class = $data['class'];
-            unset($data['class']);
-        }
-        else {
-            $class = static::class;
-        }
-
-        return static::createInstance($class, $data);
-    }
-
     protected static function createInstance(string $class, array $data): static {
-        return new $class($data);
-    }
+        global $osm_app; /* @var App $osm_app */
 
-    public function __construct(array $data = []) {
-        foreach ($data as $property => $value) {
-            $this->$property = $value;
-        }
+        $class = $osm_app->generated_classes[$class] ?? $class;
+
+        return parent::createInstance($class, $data);
     }
 }

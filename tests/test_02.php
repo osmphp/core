@@ -2,20 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Osm\Runtime\Tests;
+namespace Osm\Core\Tests;
 
-use Osm\Core\App;
-use Osm\Core\Module;
+use Osm\Core\Module as CoreModule;
+use Osm\Core\Samples\Excluded\Module as ExcludedModule;
 use Osm\Runtime\Factory;
 use Osm\Runtime\Runtime;
+use Osm\Core\Samples\App;
 use PHPUnit\Framework\TestCase;
 
 class test_02 extends TestCase
 {
     public function test_that_app_is_ready() {
         $config = [
-            'app_name' => 'custom',
-            'load_from_autoload_dev' => true,
+            'app_class_name' => App::class,
+            'autoload_dev' => true,
         ];
 
         Runtime::new()->factory($config, function (Factory $factory) {
@@ -28,7 +29,8 @@ class test_02 extends TestCase
     //        $this->assertInstanceOf("Generated\\custom\\production\\" . App::class,
     //            $factory->create());
             $this->assertInstanceOf(App::class, $app = $factory->create());
-            $this->assertArrayHasKey(Module::class, $app->modules);
+            $this->assertArrayHasKey(CoreModule::class, $app->modules);
+            $this->assertArrayNotHasKey(ExcludedModule::class, $app->modules);
         });
     }
 }

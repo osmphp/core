@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Traits;
 
-trait HasComputedProperties
+trait ComputedProperties
 {
     public function __get(string $property): mixed {
         return $this->$property = $this->default($property);

@@ -55,7 +55,19 @@ class ModuleLoader extends Object_
             'path' => rtrim($this->path, "/\\"),
         ]);
 
-        return ($instance instanceof Module) ? $instance : null;
+        if (!($instance instanceof Module)) {
+            return null;
+        }
+
+        if (!class_exists($instance->app_class_name)) {
+            return null;
+        }
+
+        if (!is_a($this->app, $instance->app_class_name)) {
+            return null;
+        }
+
+        return $instance;
     }
 
     /** @noinspection PhpUnused */
