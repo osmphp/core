@@ -12,6 +12,7 @@ use Osm\Core\Object_;
  *
  * @property string $class_name
  * @property string $path
+ * @property string $package_name
  */
 class ModuleGroup extends Object_
 {
@@ -22,4 +23,9 @@ class ModuleGroup extends Object_
 
     // 1 means that each direct subdirectory contains a module
     public int $depth = 1;
+
+    /**
+     * @var string[]
+     */
+    public array $after = [];
 }

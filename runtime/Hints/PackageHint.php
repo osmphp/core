@@ -7,7 +7,7 @@ namespace Osm\Runtime\Hints;
 /**
  * @property string $name
  */
-abstract class Package
+abstract class PackageHint
 {
 
 }

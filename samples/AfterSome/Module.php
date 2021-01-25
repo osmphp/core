@@ -9,7 +9,7 @@ use Osm\Core\Base\Module as BaseModule;
 /** @noinspection PhpUnused */
 class Module extends BaseModule
 {
-    public array $requires = [
+    public array $after = [
         \Osm\Core\Samples\Some\Module::class,
     ];
 }

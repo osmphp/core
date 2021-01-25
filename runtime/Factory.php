@@ -18,7 +18,7 @@ use function Osm\make_dir_for;
  *
  * @property string $app_class_name
  * @property string $env_name
- * @property bool $autoload_dev
+ * @property bool $load_dev
  * @property Runtime $runtime
  *
  * Computed:

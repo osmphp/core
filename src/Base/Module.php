@@ -24,7 +24,7 @@ class Module extends Object_
     /**
      * @var string[]
      */
-    public array $requires = [];
+    public array $after = [];
 
     /**
      * @var string[]

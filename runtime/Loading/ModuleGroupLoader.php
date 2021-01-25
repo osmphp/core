@@ -26,6 +26,7 @@ use Osm\Runtime\Object_;
  * @property string $class
  * @property ModuleGroup $instance
  * @property string $module_glob_pattern
+ *
  * Dependencies:
  *
  * @property App $app
@@ -61,6 +62,7 @@ class ModuleGroupLoader extends Object_
 
         $new = "{$this->class}::new";
         $instance = $new([
+            'package_name' => $this->package_loader->instance->name,
             'class_name' => $this->class,
             'path' => rtrim($this->path, "/\\"),
         ]);

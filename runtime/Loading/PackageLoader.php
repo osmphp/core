@@ -4,22 +4,30 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Loading;
 
+use Osm\Core\App;
+use Osm\Core\Base\Package;
+use Osm\Runtime\Attributes\Creates;
 use Osm\Runtime\Attributes\Runs;
 use Osm\Runtime\Factory;
-use Osm\Runtime\Hints\Package;
+use Osm\Runtime\Hints\PackageHint;
 use Osm\Runtime\Object_;
 
 /**
  * Constructor parameters:
  *
  * @property AppLoader $app_loader
- * @property Package $package
+ * @property PackageHint $package
  * @property string $name
  *
  * Computed:
  *
  * @property string $path
- * @property bool $autoload_dev
+ * @property bool $load_dev
+ * @property Package $instance
+ *
+ * Dependencies:
+ *
+ * @property App $app
  */
 class PackageLoader extends Object_
 {
@@ -34,16 +42,38 @@ class PackageLoader extends Object_
     }
 
     /** @noinspection PhpUnused */
-    protected function get_autoload_dev(): ?bool {
+    protected function get_load_dev(): ?bool {
         global $osm_factory; /* @var Factory $osm_factory */
 
-        return $osm_factory->autoload_dev;
+        return $osm_factory->load_dev;
+    }
+
+    /** @noinspection PhpUnused */
+    #[Creates(Package::class)]
+    protected function get_instance(): ?object {
+        return Package::new([
+            'name' => $this->package->name,
+            'path' => $this->path,
+            'after' => array_merge(
+                array_keys((array)($this->package->require ?? [])),
+                array_keys((array)($this->package->{'require-dev'} ?? [])),
+            ),
+        ]);
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_app(): App {
+        global $osm_factory; /* @var Factory $osm_factory */
+
+        return $osm_factory->app;
     }
 
     public function load(): void {
+        $this->app->packages[$this->package->name] = $this->instance;
+
         $this->loadSection('autoload');
 
-        if ($this->autoload_dev) {
+        if ($this->load_dev) {
             $this->loadSection('autoload-dev');
         }
     }

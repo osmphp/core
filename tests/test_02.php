@@ -18,7 +18,7 @@ class test_02 extends TestCase
     public function test_that_app_is_ready() {
         Runtime::new()->factory([
             'app_class_name' => App::class,
-            'autoload_dev' => true,
+            'load_dev' => true,
         ], function (Factory $factory)
         {
             // GIVEN no preconditions
@@ -37,10 +37,10 @@ class test_02 extends TestCase
             // AND the modules not matching the requested app are not loaded
             $this->assertArrayNotHasKey(ExcludedModule::class, $app->modules);
 
-            // AND the module order respects $requires and $after definitions
+            // AND the module order respects $after definitions
             $this->assertTrue(
-                array_search(SomeModule::class, $app->modules) <
-                array_search(AfterSomeModule::class, $app->modules));
+                array_search(SomeModule::class, array_keys($app->modules)) <
+                array_search(AfterSomeModule::class, array_keys($app->modules)));
         });
     }
 }
