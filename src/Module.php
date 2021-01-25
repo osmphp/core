@@ -6,6 +6,7 @@ namespace Osm\Core;
 
 use Osm\Core\Base\Module as BaseModule;
 
+/** @noinspection PhpUnused */
 class Module extends BaseModule
 {
 

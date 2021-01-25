@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Osm\Core\Samples\Excluded;
+namespace Osm\Core\Samples\Some;
 
 use Osm\Core\Base\Module as BaseModule;
 
 /** @noinspection PhpUnused */
 class Module extends BaseModule
 {
-    public array $app_class_names = ['non_existent'];
+
 }

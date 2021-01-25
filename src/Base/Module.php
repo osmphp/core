@@ -24,7 +24,7 @@ class Module extends Object_
     /**
      * @var string[]
      */
-    public array $dependencies = [];
+    public array $requires = [];
 
     /**
      * @var string[]
