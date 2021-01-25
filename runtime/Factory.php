@@ -225,4 +225,17 @@ class Factory extends Object_
          AppLoader::new()->load();
     }
 
+    public function appMatches(array $classNames): bool {
+        foreach ($classNames as $className) {
+            if (!class_exists($className)) {
+                continue;
+            }
+
+            if (is_a($this->app, $className)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

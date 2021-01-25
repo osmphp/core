@@ -6,6 +6,7 @@ namespace Osm\Runtime\Loading;
 
 use Osm\Core\App;
 use Osm\Core\Base\Module;
+use Osm\Runtime\Attributes\Creates;
 use Osm\Runtime\Factory;
 use Osm\Runtime\Object_;
 
@@ -47,7 +48,10 @@ class ModuleLoader extends Object_
     }
 
     /** @noinspection PhpUnused */
+    #[Creates(Module::class)]
     protected function get_instance(): ?object {
+        global $osm_factory; /* @var Factory $osm_factory */
+
         $new = "{$this->class}::new";
         $instance = $new([
             'class_name' => $this->class,
@@ -59,11 +63,7 @@ class ModuleLoader extends Object_
             return null;
         }
 
-        if (!class_exists($instance->app_class_name)) {
-            return null;
-        }
-
-        if (!is_a($this->app, $instance->app_class_name)) {
+        if (!$osm_factory->appMatches($instance->app_class_names)) {
             return null;
         }
 

@@ -8,5 +8,5 @@ use Osm\Core\Base\Module as BaseModule;
 
 class Module extends BaseModule
 {
-    public string $app_class_name = 'non_existent';
+    public array $app_class_names = ['non_existent'];
 }

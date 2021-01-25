@@ -6,6 +6,7 @@ namespace Osm\Runtime\Loading;
 
 use Osm\Core\App;
 use Osm\Core\Base\ModuleGroup;
+use Osm\Runtime\Attributes\Creates;
 use Osm\Runtime\Attributes\Runs;
 use Osm\Runtime\Factory;
 use Osm\Runtime\Object_;
@@ -54,7 +55,10 @@ class ModuleGroupLoader extends Object_
     }
 
     /** @noinspection PhpUnused */
+    #[Creates(ModuleGroup::class)]
     protected function get_instance(): ?object {
+        global $osm_factory; /* @var Factory $osm_factory */
+
         $new = "{$this->class}::new";
         $instance = $new([
             'class_name' => $this->class,
@@ -65,11 +69,7 @@ class ModuleGroupLoader extends Object_
             return null;
         }
 
-        if (!class_exists($instance->app_class_name)) {
-            return null;
-        }
-
-        if (!is_a($this->app, $instance->app_class_name)) {
+        if (!$osm_factory->appMatches($instance->app_class_names)) {
             return null;
         }
 

@@ -15,7 +15,10 @@ use Osm\Core\Object_;
  */
 class ModuleGroup extends Object_
 {
-    public string $app_class_name = App::class;
+    /**
+     * @var string[]
+     */
+    public array $app_class_names = [App::class];
 
     // 1 means that each direct subdirectory contains a module
     public int $depth = 1;

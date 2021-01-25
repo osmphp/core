@@ -16,7 +16,10 @@ use Osm\Core\Object_;
  */
 class Module extends Object_
 {
-    public string $app_class_name = App::class;
+    /**
+     * @var string[]
+     */
+    public array $app_class_names = [App::class];
 
     /**
      * @var string[]
