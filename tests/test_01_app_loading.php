@@ -6,6 +6,7 @@ namespace Osm\Core\Tests;
 
 use Osm\Core\Samples\App;
 use Osm\Runtime\App\App as RuntimeApp;
+use Osm\Runtime\App\ModuleGroup;
 use Osm\Runtime\App\Package;
 use Osm\Runtime\Factory;
 use Osm\Runtime\Loading\ModuleGroupLoader;
@@ -69,7 +70,7 @@ class test_01_app_loading extends TestCase
                 'path' => '',
             ]);
 
-            // AND the module group located in the `samples` directory of
+            // AND a module group located in the `samples` directory of
             // this very package, `osmphp/core`
             $loader = ModuleGroupLoader::new([
                 'package' => $package,
@@ -83,6 +84,8 @@ class test_01_app_loading extends TestCase
             // THEN its information can be found in its properties
             $this->assertEquals('samples', $moduleGroup->path);
             $this->assertEquals(\Osm\Core\Samples\ModuleGroup::class,
+                $moduleGroup->class_name);
+            $this->assertEquals(\Osm\Core\Samples\ModuleGroup::class,
                 $moduleGroup->upgrade_to_class_name);
             $this->assertEmpty($moduleGroup->after);
         });
@@ -90,21 +93,43 @@ class test_01_app_loading extends TestCase
 
     public function test_module_loading() {
         Runtime::new()->factory($this->config, function (Factory $factory) {
-            // GIVEN a module
-
-            // WHEN you run the module loader
-            $loader = ModuleLoader::new([
-                'module_group_loader' => $this,
-                'namespace' => $namespace,
-                'path' => $path,
+            // GIVEN an app
+            $app = $factory->app = RuntimeApp::new([
+                'upgrade_to_class_name' => $factory->app_class_name,
             ]);
 
+            // AND a package, already loaded into the app
+            $package = $app->packages['osmphp/core'] = Package::new([
+                'name' => 'osmphp/core',
+                'path' => '',
+            ]);
+
+            // AND a module group, already loaded into the module group
+            $moduleGroup = $app->module_groups[\Osm\Core\Samples\ModuleGroup::class] =
+                ModuleGroup::new([
+                    'package_name' => 'osmphp/core',
+                    'path' => 'samples',
+                    'upgrade_to_class_name' => \Osm\Core\Samples\ModuleGroup::class,
+                ]);
+
+            // AND a module located in the `samples/Some` directory of
+            // this very package, `osmphp/core`
+            $loader = ModuleLoader::new([
+                'module_group' => $moduleGroup,
+                'namespace' => "Osm\\Core\\Samples\\Some\\",
+                'path' => "samples/Some",
+            ]);
+
+            // WHEN you load the module group
+            $module = $loader->load();
+
             // THEN
-            ModuleLoader::new([
-                'module_group_loader' => $this,
-                'namespace' => $namespace,
-                'path' => $path,
-            ])->load();
+            $this->assertEquals('samples/Some', $module->path);
+            $this->assertEquals(\Osm\Core\Samples\Some\Module::class,
+                $module->class_name);
+            $this->assertEquals(\Osm\Core\Samples\Some\Module::class,
+                $module->upgrade_to_class_name);
+            $this->assertEmpty($module->after);
         });
     }
 }

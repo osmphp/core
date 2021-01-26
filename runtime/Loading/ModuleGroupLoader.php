@@ -6,6 +6,7 @@ namespace Osm\Runtime\Loading;
 
 use Osm\App\ModuleGroup as CoreModuleGroup;
 use Osm\Runtime\App\App;
+use Osm\Runtime\App\Module;
 use Osm\Runtime\App\ModuleGroup;
 use Osm\Runtime\App\Package;
 use Osm\Runtime\Attributes\Creates;
@@ -117,9 +118,9 @@ class ModuleGroupLoader extends Object_
     }
 
     #[Runs(ModuleLoader::class)]
-    protected function loadModule(string $namespace, string $path): void {
-        ModuleLoader::new([
-            'module_group_loader' => $this,
+    protected function loadModule(string $namespace, string $path): ?Module {
+        return ModuleLoader::new([
+            'module_group' => $this->instance,
             'namespace' => $namespace,
             'path' => $path,
         ])->load();

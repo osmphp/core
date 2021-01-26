@@ -10,14 +10,14 @@ use Osm\Object_;
 /**
  * Constructor parameters:
  *
- * @property string $class_name
  * @property string $path
  * @property string $package_name
+ * @property string $upgrade_to_class_name
  *
  * Computed:
  *
+ * @property string $class_name
  * @property string $namespace
- * @property string $upgrade_to_class_name
  */
 class ModuleGroup extends Object_
 {
@@ -33,6 +33,11 @@ class ModuleGroup extends Object_
      * @var string[]
      */
     public array $after = [];
+
+    /** @noinspection PhpUnused */
+    protected function get_class_name(): string {
+        return $this->upgrade_to_class_name;
+    }
 
     /** @noinspection PhpUnused */
     protected function get_namespace(): string {

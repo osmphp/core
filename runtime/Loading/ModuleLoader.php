@@ -7,6 +7,7 @@ namespace Osm\Runtime\Loading;
 use Osm\App\Module as CoreModule;
 use Osm\Runtime\App\App;
 use Osm\Runtime\App\Module;
+use Osm\Runtime\App\ModuleGroup;
 use Osm\Runtime\Attributes\Creates;
 use Osm\Runtime\Factory;
 use Osm\Runtime\Object_;
@@ -14,7 +15,7 @@ use Osm\Runtime\Object_;
 /**
  * Constructor parameters:
  *
- * @property ModuleGroupLoader $module_group_loader
+ * @property ModuleGroup $module_group
  * @property string $namespace
  * @property string $path
  *
@@ -54,8 +55,8 @@ class ModuleLoader extends Object_
         global $osm_factory; /* @var Factory $osm_factory */
 
         $instance = $osm_factory->downgrade(CoreModule::new([
-            'class_name' => $this->class,
-            'module_group_class_name' => $this->module_group_loader->class,
+            '__class_name' => $this->class,
+            'module_group_class_name' => $this->module_group->class_name,
             'path' => rtrim($this->path, "/\\"),
         ]));
 
@@ -77,16 +78,16 @@ class ModuleLoader extends Object_
         return $osm_factory->app;
     }
 
-    public function load(): void {
+    public function load(): ?Module {
         if (!is_file($this->filename)) {
-            return; // there is no Module class
+            return null; // there is no Module class
         }
 
         if (!$this->instance) {
-            return; // the class doesn't extend base Module class
+            return null; // the class doesn't extend base Module class
         }
 
-        $this->app->modules[$this->class] = $this->instance;
+        return $this->app->modules[$this->class] = $this->instance;
 
     }
 }
