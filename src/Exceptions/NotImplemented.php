@@ -1,6 +1,6 @@
 <?php
 
-namespace Osm\Core\Exceptions;
+namespace Osm\Exceptions;
 
 class NotImplemented extends \Exception
 {

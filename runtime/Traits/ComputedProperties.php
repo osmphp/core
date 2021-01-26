@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Traits;
 
-use Osm\Runtime\Exceptions\PropertyNotSet;
+use Osm\Runtime\Exceptions\Required;
 
 trait ComputedProperties
 {
@@ -17,7 +17,7 @@ trait ComputedProperties
             return $this->__get($property) !== null;
         }
         /** @noinspection PhpRedundantCatchClauseInspection */
-        catch (PropertyNotSet) {
+        catch (Required) {
             return false;
         }
     }

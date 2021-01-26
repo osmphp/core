@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Osm\Core\Base;
+namespace Osm\App;
 
-use Osm\Core\App;
-use Osm\Core\Object_;
+use Osm\Object_;
 
 /**
  * Constructor parameters:
@@ -16,6 +15,8 @@ use Osm\Core\Object_;
  */
 class Module extends Object_
 {
+    public string $runtime_class_name = \Osm\Runtime\App\Module::class;
+
     /**
      * @var string[]
      */

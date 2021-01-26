@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime;
 
-use Osm\Core\Exceptions\NotSupported;
+use Osm\Exceptions\NotSupported;
 
 class Runtime extends Object_
 {

@@ -6,6 +6,7 @@ namespace Osm\Classes;
 
 use Osm\Object_;
 
-class Class_ extends Object_
+class Property extends Object_
 {
+
 }

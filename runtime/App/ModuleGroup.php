@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Osm\Core\Base;
+namespace Osm\Runtime\App;
 
-use Osm\Core\App;
-use Osm\Core\Object_;
+use Osm\App\App as CoreApp;
+use Osm\Object_;
 
 /**
  * Constructor parameters:
@@ -17,13 +17,14 @@ use Osm\Core\Object_;
  * Computed:
  *
  * @property string $namespace
+ * @property string $upgrade_to_class_name
  */
 class ModuleGroup extends Object_
 {
     /**
      * @var string[]
      */
-    public array $app_class_names = [App::class];
+    public array $app_class_names = [CoreApp::class];
 
     // 1 means that each direct subdirectory contains a module
     public int $depth = 1;

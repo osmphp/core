@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime;
 
+use Osm\Exceptions\NotSupported;
 use Osm\Runtime\Traits\ComputedProperties;
 
 /**
@@ -14,8 +15,9 @@ class Object_
     use ComputedProperties;
 
     public static function new(array $data = []): static {
-        if (isset($data['class_name'])) {
-            $class = $data['class_name'];
+        if (isset($data['__class_name'])) {
+            $class = $data['__class_name'];
+            unset($data['__class_name']);
         }
         else {
             $class = static::class;
@@ -32,5 +34,10 @@ class Object_
         foreach ($data as $property => $value) {
             $this->$property = $value;
         }
+    }
+
+    public function __sleep(): array {
+        // prevent serialization of runtime objects
+        throw new NotSupported();
     }
 }

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Loading;
 
-use Osm\Core\App;
-use Osm\Core\Base\Package;
+use Osm\App\Package as CorePackage;
+use Osm\Runtime\App\App;
+use Osm\Runtime\App\Package;
 use Osm\Runtime\Attributes\Creates;
 use Osm\Runtime\Attributes\Runs;
 use Osm\Runtime\Factory;
@@ -15,9 +16,8 @@ use Osm\Runtime\Object_;
 /**
  * Constructor parameters:
  *
- * @property AppLoader $app_loader
  * @property PackageHint $package
- * @property string $name
+ * @property bool $root
  *
  * Computed:
  *
@@ -32,13 +32,8 @@ use Osm\Runtime\Object_;
 class PackageLoader extends Object_
 {
     /** @noinspection PhpUnused */
-    protected function get_name(): string {
-        return $this->package->name;
-    }
-
-    /** @noinspection PhpUnused */
     protected function get_path(): string {
-        return $this->name ? "vendor/{$this->name}" : '';
+        return $this->root ? '' : "vendor/{$this->package->name}";
     }
 
     /** @noinspection PhpUnused */
@@ -51,14 +46,16 @@ class PackageLoader extends Object_
     /** @noinspection PhpUnused */
     #[Creates(Package::class)]
     protected function get_instance(): ?object {
-        return Package::new([
+        global $osm_factory; /* @var Factory $osm_factory */
+
+        return $osm_factory->downgrade(CorePackage::new([
             'name' => $this->package->name,
             'path' => $this->path,
             'after' => array_merge(
                 array_keys((array)($this->package->require ?? [])),
                 array_keys((array)($this->package->{'require-dev'} ?? [])),
             ),
-        ]);
+        ]));
     }
 
     /** @noinspection PhpUnused */
@@ -68,7 +65,7 @@ class PackageLoader extends Object_
         return $osm_factory->app;
     }
 
-    public function load(): void {
+    public function load(): Package {
         $this->app->packages[$this->package->name] = $this->instance;
 
         $this->loadSection('autoload');
@@ -76,6 +73,8 @@ class PackageLoader extends Object_
         if ($this->load_dev) {
             $this->loadSection('autoload-dev');
         }
+
+        return $this->instance;
     }
 
     protected function loadSection(string $section): void {
@@ -91,7 +90,7 @@ class PackageLoader extends Object_
     #[Runs(ModuleGroupLoader::class)]
     protected function loadModuleGroup(string $namespace, string $path): void {
         ModuleGroupLoader::new([
-            'package_loader' => $this,
+            'package' => $this->instance,
             'namespace' => $namespace,
             'path' => $path,
         ])->load();

@@ -22,7 +22,7 @@
         ],
         "psr-4": {
             "Osm\\Runtime\\": "runtime/",
-            "Osm\\Core\\": "src/"
+            "Osm\\": "src/"
         }
     },
     "autoload-dev": {

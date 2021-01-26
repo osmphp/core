@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Core\Samples\Some;
 
-use Osm\Core\Object_;
+use Osm\Object_;
 
 class Some extends Object_
 {

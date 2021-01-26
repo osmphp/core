@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Core\Samples\Excluded;
 
-use Osm\Core\Base\Module as BaseModule;
+use Osm\App\Module as BaseModule;
 
 /** @noinspection PhpUnused */
 class Module extends BaseModule

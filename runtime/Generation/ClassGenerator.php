@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Generation;
 
-use Osm\Core\Classes\Class_;
-use Osm\Core\Exceptions\NotImplemented;
+use Osm\Classes\Class_;
+use Osm\Exceptions\NotImplemented;
 use Osm\Runtime\Object_;
 
 /**

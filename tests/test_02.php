@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Osm\Core\Tests;
 
-use Osm\Core\Module as CoreModule;
 use Osm\Core\Samples\Excluded\Module as ExcludedModule;
 use Osm\Core\Samples\Some\Module as SomeModule;
 use Osm\Core\Samples\AfterSome\Module as AfterSomeModule;
@@ -47,7 +46,6 @@ class test_02 extends TestCase
             $this->assertInstanceOf(App::class, $app);
 
             // AND the modules matching the requested app are loaded
-            $this->assertArrayHasKey(CoreModule::class, $app->modules);
             $this->assertArrayHasKey(SomeModule::class, $app->modules);
             $this->assertArrayHasKey(AfterSomeModule::class, $app->modules);
 

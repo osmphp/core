@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Osm\Core;
+namespace Osm\Runtime\App;
 
-use Osm\Core\Base\ModuleGroup as BaseModuleGroup;
-use Osm\Core\Base\Module as BaseModule;
-use Osm\Core\Base\Package;
-use Osm\Core\Classes\Class_;
+use Osm\Runtime\Classes\Class_;
+use Osm\Runtime\Object_;
 
 /**
  * Constructor parameters:
@@ -15,6 +13,7 @@ use Osm\Core\Classes\Class_;
  * @property string $class_name
  * @property string $name
  * @property string $env_name
+ * @property string $upgrade_to_class_name
  */
 class App extends Object_
 {
@@ -24,12 +23,12 @@ class App extends Object_
     public array $packages = [];
 
     /**
-     * @var BaseModuleGroup[]
+     * @var ModuleGroup[]
      */
     public array $module_groups = [];
 
     /**
-     * @var BaseModule[]
+     * @var Module[]
      */
     public array $modules = [];
 
@@ -37,4 +36,5 @@ class App extends Object_
      * @var Class_[]
      */
     public array $classes = [];
+
 }

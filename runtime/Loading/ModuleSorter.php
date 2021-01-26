@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Loading;
 
-use Osm\Core\App;
-use Osm\Core\Base\Module;
+use Osm\Runtime\App\App;
+use Osm\Runtime\App\Module;
 use Osm\Runtime\Exceptions\CircularDependency;
 use Osm\Runtime\Factory;
 use Osm\Runtime\Object_;

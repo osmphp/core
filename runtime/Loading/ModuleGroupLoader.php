@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Loading;
 
-use Osm\Core\App;
-use Osm\Core\Base\ModuleGroup;
+use Osm\App\ModuleGroup as CoreModuleGroup;
+use Osm\Runtime\App\App;
+use Osm\Runtime\App\ModuleGroup;
+use Osm\Runtime\App\Package;
 use Osm\Runtime\Attributes\Creates;
 use Osm\Runtime\Attributes\Runs;
 use Osm\Runtime\Factory;
@@ -14,7 +16,7 @@ use Osm\Runtime\Object_;
 /**
  * Constructor parameters:
  *
- * @property PackageLoader $package_loader
+ * @property Package $package
  * @property string $namespace
  * @property string $path
  *
@@ -60,11 +62,11 @@ class ModuleGroupLoader extends Object_
     protected function get_instance(): ?object {
         global $osm_factory; /* @var Factory $osm_factory */
 
-        $instance = ModuleGroup::new([
-            'package_name' => $this->package_loader->instance->name,
-            'class_name' => $this->class,
+        $instance = $osm_factory->downgrade(CoreModuleGroup::new([
+            'package_name' => $this->package->name,
+            '__class_name' => $this->class,
             'path' => rtrim($this->path, "/\\"),
-        ]);
+        ]));
 
         if (!($instance instanceof ModuleGroup)) {
             return null;
@@ -90,13 +92,13 @@ class ModuleGroupLoader extends Object_
         return $osm_factory->app;
     }
 
-    public function load(): void {
+    public function load(): ?ModuleGroup {
         if (!is_file($this->filename)) {
-            return; // there is no ModuleGroup class
+            return null; // there is no ModuleGroup class
         }
 
         if (!$this->instance) {
-            return; // the class doesn't extend base ModuleGroup class
+            return null; // the class doesn't extend base ModuleGroup class
         }
 
         $this->app->module_groups[$this->class] = $this->instance;
@@ -110,6 +112,8 @@ class ModuleGroupLoader extends Object_
 
             $this->loadModule($namespace, $path);
         }
+
+        return $this->instance;
     }
 
     #[Runs(ModuleLoader::class)]

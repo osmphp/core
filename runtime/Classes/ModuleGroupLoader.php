@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Classes;
 
-use Osm\Core\App;
-use Osm\Core\Base\ModuleGroup;
-use Osm\Core\Classes\Class_;
-use Osm\Core\Object_;
+use Osm\Runtime\App\App;
+use Osm\Runtime\App\ModuleGroup;
+use Osm\Object_;
+use Osm\Runtime\Attributes\Creates;
 use Osm\Runtime\Factory;
 
 /**
@@ -67,11 +67,8 @@ class ModuleGroupLoader extends Object_
                     pathinfo($fileInfo->getFilename(), PATHINFO_FILENAME)
                 );
 
-            $this->app->classes[$className] = Class_::new([
-                'app' => $this->app,
-                'name' => $className,
-                'traits' => $this->loadTraits($className),
-            ]);
+            $this->app->classes[$className] = $this->createClass($className,
+                $this->loadTraits($className));
         }
     }
 
@@ -85,5 +82,13 @@ class ModuleGroupLoader extends Object_
         }
 
         return array_keys($result);
+    }
+
+    #[Creates(Class_::class)]
+    protected function createClass(string $className, array $traits): Class_ {
+        return Class_::new([
+            'name' => $className,
+            'traits' => $traits,
+        ]);
     }
 }

@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace Osm\Runtime;
 
-use Osm\Core\App;
-use Osm\Core\Classes\Class_;
+use Osm\App\App as CoreApp;
+use Osm\Attributes\Part;
+use Osm\Runtime\Classes\Class_;
+use Osm\Exceptions\NotSupported;
+use Osm\Object_ as CoreObject;
+use Osm\Runtime\App\App;
 use Osm\Runtime\Attributes\Runs;
 use Osm\Runtime\Classes\ClassLoader;
+use Osm\Runtime\Classes\PropertyLoader;
 use Osm\Runtime\Exceptions\Abort;
 use Osm\Runtime\Exceptions\AbortTimeout;
-use Osm\Runtime\Exceptions\PropertyNotSet;
+use Osm\Runtime\Exceptions\Required;
 use Osm\Runtime\Generation\ClassGenerator;
 use Osm\Runtime\Loading\AppLoader;
 use function Osm\make_dir;
@@ -45,7 +50,7 @@ class Factory extends Object_
 {
     /** @noinspection PhpUnused */
     protected function get_app_class_name(): string {
-        throw new PropertyNotSet(__METHOD__);
+        throw new Required(__METHOD__);
     }
 
     /** @noinspection PhpUnused */
@@ -180,11 +185,11 @@ class Factory extends Object_
      * Compiles the application
      */
     public function compile(): void {
-        $this->app = App::new([
-            'class_name' => $this->app_class_name,
+        $this->app = $this->downgrade(CoreApp::new([
+            '__class_name' => $this->app_class_name,
             'name' => $this->app_name,
             'env_name' => $this->env_name,
-        ]);
+        ]));
 
         // collects module groups and modules that are relevant for this app,
         // in their dependency order
@@ -193,6 +198,9 @@ class Factory extends Object_
         // collects all the classes in all the module groups,
         // all the dynamic traits, and referenced non-module classes
         $this->loadClasses();
+        foreach ($this->app->classes as $class) {
+            $this->loadProperties($class);
+        }
 
         // generates affected classes with applied dynamic traits
         $this->generateClasses();
@@ -212,11 +220,16 @@ class Factory extends Object_
         ClassLoader::new()->load();
     }
 
+    #[Runs(PropertyLoader::class)]
+    protected function loadProperties(Class_ $class): void {
+        //PropertyLoader::new(['class' => $class])->load();
+    }
+
     protected function generateClasses() {
         $output = "<?php\n\n";
 
         foreach ($this->app->classes as $class) {
-            if ($class->actual_name != $class->name) {
+            if ($class->generated_name) {
                 $output .= $this->generateClass($class);
             }
         }
@@ -231,7 +244,62 @@ class Factory extends Object_
     }
 
     protected function saveApp() {
-        file_put_contents(make_dir_for($this->app_ser_path), serialize($this->app));
+        file_put_contents(make_dir_for($this->app_ser_path),
+            serialize($this->upgrade($this->app)));
+    }
+
+    public function upgrade(Object_ $object): CoreObject {
+        $className = $object->upgrade_to_class_name;
+
+        $class = $this->app->classes[$className];
+        $className = $class->generated_name ?? $className;
+
+        $data = [];
+
+        foreach (get_object_vars($object) as $property => $value) {
+            if (!isset($class->properties[$property]->attributes[Part::class])) {
+                continue;
+            }
+
+            if ($value instanceof Object_) {
+                $value = $this->upgrade($value);
+            }
+            elseif (is_array($value)) {
+                foreach ($value as $key => &$item) {
+                    if ($item instanceof Object_) {
+                        $item = $this->upgrade($item);
+                    }
+                }
+            }
+
+            $data[$property] = $value;
+        }
+
+        return new $className($data);
+    }
+
+    public function downgrade(CoreObject $object): Object_ {
+        $data = get_object_vars($object);
+        foreach ($data as &$value) {
+            if ($value instanceof CoreObject) {
+                $value = $this->downgrade($value);
+            }
+            elseif (is_array($value)) {
+                foreach ($value as $key => &$item) {
+                    if ($item instanceof CoreObject) {
+                        $item = $this->downgrade($item);
+                    }
+                }
+            }
+        }
+
+        if (!($data['__class_name'] = $object->runtime_class_name)) {
+            throw new NotSupported();
+        }
+        $data['upgrade_to_class_name'] = get_class($object);
+        unset($data['runtime_class_name']);
+
+        return Object_::new($data);
     }
 
     public function appMatches(array $classNames): bool {
@@ -240,7 +308,7 @@ class Factory extends Object_
                 continue;
             }
 
-            if (is_a($this->app, $className)) {
+            if (is_a($this->app->upgrade_to_class_name, $className, true)) {
                 return true;
             }
         }

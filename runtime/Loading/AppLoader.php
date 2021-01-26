@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Loading;
 
-use Osm\Core\App;
+use Osm\Runtime\App\App;
+use Osm\Runtime\App\Package;
 use Osm\Runtime\Attributes\Runs;
 use Osm\Runtime\Factory;
 use Osm\Runtime\Hints\ComposerLock;
@@ -61,7 +62,7 @@ class AppLoader extends Object_
             $this->loadSection('packages-dev');
         }
 
-        $this->loadPackage($this->composer_json, name: '');
+        $this->loadPackage($this->composer_json, root: true);
 
         $this->prunePackagesHavingNoModuleGroups();
         $this->sortPackages();
@@ -75,18 +76,14 @@ class AppLoader extends Object_
 
     #[Runs(PackageLoader::class)]
     protected function loadPackage(\stdClass|PackageHint $package,
-        ?string $name = null): void
+        bool $root = false): Package
     {
         $data = [
             'package' => $package,
-            'app_loader' => $this,
+            'root' => $root,
         ];
 
-        if ($name !== null) {
-            $data['name'] = $name;
-        }
-
-        PackageLoader::new($data)->load();
+        return PackageLoader::new($data)->load();
     }
 
     protected function prunePackagesHavingNoModuleGroups() {

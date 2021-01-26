@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Loading;
 
-use Osm\Core\App;
-use Osm\Core\Base\Module;
+use Osm\App\Module as CoreModule;
+use Osm\Runtime\App\App;
+use Osm\Runtime\App\Module;
 use Osm\Runtime\Attributes\Creates;
 use Osm\Runtime\Factory;
 use Osm\Runtime\Object_;
@@ -52,11 +53,11 @@ class ModuleLoader extends Object_
     protected function get_instance(): ?object {
         global $osm_factory; /* @var Factory $osm_factory */
 
-        $instance = Module::new([
+        $instance = $osm_factory->downgrade(CoreModule::new([
             'class_name' => $this->class,
             'module_group_class_name' => $this->module_group_loader->class,
             'path' => rtrim($this->path, "/\\"),
-        ]);
+        ]));
 
         if (!($instance instanceof Module)) {
             return null;
