@@ -8,26 +8,43 @@ use Osm\Core\Module as CoreModule;
 use Osm\Core\Samples\Excluded\Module as ExcludedModule;
 use Osm\Core\Samples\Some\Module as SomeModule;
 use Osm\Core\Samples\AfterSome\Module as AfterSomeModule;
+use Osm\Core\Samples\Some\Other;
+use Osm\Core\Samples\Some\Some;
 use Osm\Runtime\Factory;
 use Osm\Runtime\Runtime;
 use Osm\Core\Samples\App;
+use Osm\Runtime\Traits\ComputedProperties;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @property array $config
+ */
 class test_02 extends TestCase
 {
-    public function test_that_app_is_ready() {
-        Runtime::new()->factory([
+    use ComputedProperties;
+
+    protected function get_config(): array {
+        return [
             'app_class_name' => App::class,
             'load_dev' => true,
-        ], function (Factory $factory)
-        {
-            // GIVEN no preconditions
+        ];
+    }
 
-            // WHEN you build the requested app for the requested environment
+    protected function setUp(): void {
+        Runtime::new()->factory($this->config, function (Factory $factory) {
             $factory->compile();
+        });
+    }
 
-            // THEN it is ready
-            $this->assertInstanceOf(App::class, $app = $factory->create());
+    public function test_that_app_is_loaded() {
+        Runtime::new()->factory($this->config, function (Factory $factory) {
+            // GIVEN a compiled app
+            $app = $factory->create();
+
+            // WHEN you don't do anything extra
+
+            // THEN it is of a correct class
+            $this->assertInstanceOf(App::class, $app);
 
             // AND the modules matching the requested app are loaded
             $this->assertArrayHasKey(CoreModule::class, $app->modules);
@@ -41,6 +58,26 @@ class test_02 extends TestCase
             $this->assertTrue(
                 array_search(SomeModule::class, array_keys($app->modules)) <
                 array_search(AfterSomeModule::class, array_keys($app->modules)));
+        });
+    }
+
+    public function test_that_dynamic_trait_is_applied() {
+        Runtime::new()->factory($this->config, function (Factory $factory) {
+            // GIVEN a compiled app
+            $app = $factory->create();
+
+            // WHEN there is the dynamic trait `SomeTrait` applied to
+            // the `Some` class, and the `Other` class extends `Some` class
+
+            // THEN the properties computed in the trait work in `Some` class
+            $obj = Some::new();
+            $this->assertEquals(10, $obj->width);
+            $this->assertEquals(100, $obj->area_size);
+
+            // AND in the derived `Other` class as well
+            $obj = Other::new();
+            $this->assertEquals(10, $obj->width);
+            $this->assertEquals(100, $obj->area_size);
         });
     }
 }

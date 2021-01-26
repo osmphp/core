@@ -13,6 +13,10 @@ use Osm\Core\Object_;
  * @property string $class_name
  * @property string $path
  * @property string $package_name
+ *
+ * Computed:
+ *
+ * @property string $namespace
  */
 class ModuleGroup extends Object_
 {
@@ -28,4 +32,10 @@ class ModuleGroup extends Object_
      * @var string[]
      */
     public array $after = [];
+
+    /** @noinspection PhpUnused */
+    protected function get_namespace(): string {
+        return mb_substr($this->class_name, 0,
+            mb_strrpos($this->class_name, '\\'));
+    }
 }

@@ -60,8 +60,7 @@ class ModuleGroupLoader extends Object_
     protected function get_instance(): ?object {
         global $osm_factory; /* @var Factory $osm_factory */
 
-        $new = "{$this->class}::new";
-        $instance = $new([
+        $instance = ModuleGroup::new([
             'package_name' => $this->package_loader->instance->name,
             'class_name' => $this->class,
             'path' => rtrim($this->path, "/\\"),

@@ -14,9 +14,8 @@ class Object_
     use ComputedProperties;
 
     public static function new(array $data = []): static {
-        if (isset($data['class'])) {
-            $class = $data['class'];
-            unset($data['class']);
+        if (isset($data['class_name'])) {
+            $class = $data['class_name'];
         }
         else {
             $class = static::class;

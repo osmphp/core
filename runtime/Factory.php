@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Osm\Runtime;
 
 use Osm\Core\App;
+use Osm\Core\Classes\Class_;
 use Osm\Runtime\Attributes\Runs;
+use Osm\Runtime\Classes\ClassLoader;
 use Osm\Runtime\Exceptions\Abort;
 use Osm\Runtime\Exceptions\AbortTimeout;
 use Osm\Runtime\Exceptions\PropertyNotSet;
+use Osm\Runtime\Generation\ClassGenerator;
 use Osm\Runtime\Loading\AppLoader;
 use function Osm\make_dir;
 use function Osm\make_dir_for;
@@ -177,52 +180,58 @@ class Factory extends Object_
      * Compiles the application
      */
     public function compile(): void {
-        $new = "{$this->app_class_name}::new";
-        $this->app = $new();
-
-        $this->loadApp();
+        $this->app = App::new([
+            'class_name' => $this->app_class_name,
+            'name' => $this->app_name,
+            'env_name' => $this->env_name,
+        ]);
 
         // collects module groups and modules that are relevant for this app,
         // in their dependency order
-        $this->collectModules();
+        $this->loadApp();
 
-        // collects all the classes in all the modules
-        $this->collectClasses();
-
-        // collects all the dynamic traits, and referenced non-module classes
-        $this->collectTraits();
+        // collects all the classes in all the module groups,
+        // all the dynamic traits, and referenced non-module classes
+        $this->loadClasses();
 
         // generates affected classes with applied dynamic traits
         $this->generateClasses();
 
         // generates app object, adds the info to it from the runtime objects,
         // and serializes it
-        $this->generateApp();
-    }
-
-    protected function collectModules() {
-//        ModuleGroupSorter::new()->sort();
-//        ModuleSorter::new()->sort();
-    }
-
-    protected function collectClasses() {
-    }
-
-    protected function collectTraits() {
-    }
-
-    protected function generateClasses() {
-        $output = "<?php\n\n";
-        file_put_contents(make_dir_for($this->classes_php_path), $output);
-    }
-
-    protected function generateApp() {
-        file_put_contents(make_dir_for($this->app_ser_path), serialize($this->app));
+        $this->saveApp();
     }
 
     #[Runs(AppLoader::class)]
     protected function loadApp(): void {
          AppLoader::new()->load();
+    }
+
+    #[Runs(ClassLoader::class)]
+    protected function loadClasses() {
+        ClassLoader::new()->load();
+    }
+
+    protected function generateClasses() {
+        $output = "<?php\n\n";
+
+        foreach ($this->app->classes as $class) {
+            if ($class->actual_name != $class->name) {
+                $output .= $this->generateClass($class);
+            }
+        }
+
+        file_put_contents(make_dir_for($this->classes_php_path), $output);
+    }
+
+
+    #[Runs(ClassGenerator::class)]
+    protected function generateClass(Class_ $class): string {
+        return ClassGenerator::new(['class' => $class])->generate();
+    }
+
+    protected function saveApp() {
+        file_put_contents(make_dir_for($this->app_ser_path), serialize($this->app));
     }
 
     public function appMatches(array $classNames): bool {

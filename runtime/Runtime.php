@@ -32,7 +32,7 @@ class Runtime extends Object_
             $callback($osm_factory);
         }
         finally {
-            unset($osm_factory);
+            $osm_factory = null;
         }
     }
 }
