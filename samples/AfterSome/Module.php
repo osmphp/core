@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Osm\Core\Samples\AfterSome;
 
-use Osm\App\Module as BaseModule;
+use Osm\Core\Module as BaseModule;
 use Osm\Core\Samples\Some\Some;
 
 /** @noinspection PhpUnused */
 class Module extends BaseModule
 {
-    public array $after = [
+    public static array $after = [
         \Osm\Core\Samples\Some\Module::class,
     ];
 
-    public array $traits = [
+    public static array $traits = [
         Some::class => Traits\SomeTrait::class,
     ];
 }

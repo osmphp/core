@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Core\Samples\Some;
 
-use Osm\Object_;
+use Osm\Core\Object_;
 use Osm\Core\Samples\Attributes\Marker;
 
 /**

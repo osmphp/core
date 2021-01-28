@@ -1,10 +1,9 @@
 <?php
 
+/** @noinspection PhpUnusedAliasInspection */
 declare(strict_types=1);
 
-namespace Osm\Classes;
-
-use Osm\Object_;
+namespace Osm\Core;
 
 class Property extends Object_
 {

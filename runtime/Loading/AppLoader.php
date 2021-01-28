@@ -84,6 +84,14 @@ class AppLoader extends Object_
             'root' => $root,
         ];
 
+        return $osm_compiler->downgrade(CorePackage::new([
+            'name' => $this->package->name,
+            'path' => $this->path,
+            'after' => array_merge(
+                array_keys((array)($this->package->require ?? [])),
+                array_keys((array)($this->package->{'require-dev'} ?? [])),
+            ),
+        ]));
         return PackageLoader::new($data)->load();
     }
 

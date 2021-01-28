@@ -7,7 +7,7 @@ namespace Osm\Runtime;
 use Osm\Runtime\Attributes\Runs;
 use Osm\Runtime\Compilation\Compiler;
 
-final class Runtime
+final class Apps
 {
     public static string $project_path;
     public static int $compilation_timeout = 5000; // ms
@@ -49,10 +49,7 @@ final class Runtime
 
     #[Runs(Compiler::class)]
     public static function compile(string $appClassName): void {
-        $compiler = new Compiler([
-            'paths' => self::paths($appClassName),
-            'timeout' => self::$compilation_timeout,
-        ]);
+        $compiler = Compiler::new(['app_class_name' => $appClassName]);
 
         self::run($compiler, function(Compiler $compiler) {
             $compiler->lock(function(Compiler $compiler) {
@@ -62,12 +59,8 @@ final class Runtime
     }
 
     public static function paths(string $appClassName): Paths {
-        $class = self::$paths_class_name;
+        $new = self::$paths_class_name . "::new";
 
-        return new $class([
-            'app_class_name' => $appClassName,
-            'project_path' => self::$project_path
-                ?? dirname(dirname(dirname(__DIR__))),
-        ]);
+        return $new(['app_class_name' => $appClassName]);
     }
 }

@@ -10,7 +10,7 @@ use Osm\Core\Samples\AfterSome\Module as AfterSomeModule;
 use Osm\Core\Samples\Some\Other;
 use Osm\Core\Samples\Some\Some;
 use Osm\Runtime\OldCompiler;
-use Osm\Runtime\Runtime;
+use Osm\Runtime\Apps;
 use Osm\Core\Samples\App;
 use Osm\Runtime\Traits\ComputedProperties;
 use PHPUnit\Framework\TestCase;
@@ -30,13 +30,13 @@ class test_11 extends TestCase
     }
 
     protected function setUp(): void {
-        Runtime::new()->factory($this->config, function (OldCompiler $factory) {
+        Apps::new()->factory($this->config, function (OldCompiler $factory) {
             $factory->compile();
         });
     }
 
     public function test_that_app_is_loaded() {
-        Runtime::new()->factory($this->config, function (OldCompiler $factory) {
+        Apps::new()->factory($this->config, function (OldCompiler $factory) {
             // GIVEN a compiled app
             $app = $factory->create();
 
@@ -60,7 +60,7 @@ class test_11 extends TestCase
     }
 
     public function test_that_dynamic_trait_is_applied() {
-        Runtime::new()->factory($this->config, function (OldCompiler $factory) {
+        Apps::new()->factory($this->config, function (OldCompiler $factory) {
             // GIVEN a compiled app
             $app = $factory->create();
 

@@ -15,7 +15,7 @@ use Osm\Runtime\Classes\ClassLoader;
 use Osm\Runtime\Classes\PropertyLoader;
 use Osm\Runtime\OldCompiler;
 use Osm\Runtime\Loading\AppLoader;
-use Osm\Runtime\Runtime;
+use Osm\Runtime\Apps;
 use Osm\Runtime\Traits\ComputedProperties;
 use phpDocumentor\Reflection\DocBlockFactory;
 use PHPUnit\Framework\TestCase;
@@ -35,7 +35,7 @@ class test_02_property_loading extends TestCase
     }
 
     public function test_loading_from_doc_comment() {
-        Runtime::new()->factory($this->config, function (OldCompiler $factory) {
+        Apps::new()->factory($this->config, function (OldCompiler $factory) {
             // GIVEN an app with loaded modules and scanned class names
             $app = $factory->app = RuntimeApp::new([
                 'upgrade_to_class_name' => $factory->app_class_name,

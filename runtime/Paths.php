@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Osm\Runtime;
 
+use Osm\Core\Exceptions\Required;
 use Osm\Runtime\Compilation\Compiler;
-use Osm\Runtime\Exceptions\Required;
 
 /**
  * Constructor parameters:
  *
  * @property string $app_class_name
- * @property string $project_path
  *
  * Computed:
  *
+ * @property string $project
  * @property string $app_name
  *
  * Computed paths:
@@ -35,25 +35,19 @@ class Paths extends Object_
     }
 
     /** @noinspection PhpUnused */
-    protected function get_project_path(): string {
-        throw new Required(__METHOD__);
+    protected function get_project(): string {
+        return Apps::$project_path
+            ?? dirname(dirname(dirname(__DIR__)));
     }
 
     /** @noinspection PhpUnused */
     protected function get_app_name(): string {
-        $result = $this->app_class_name;
-
-        if (str_ends_with($result, '\\App')) {
-            $result = mb_substr($result, 0,
-                mb_strlen($result) - mb_strlen('\\App'));
-        }
-
-        return str_replace('\\', '_', $result);
+        return $this->className($this->app_class_name, '\\App');
     }
 
     /** @noinspection PhpUnused */
     protected function get_generated(): string {
-        return "{$this->project_path}/generated";
+        return "{$this->project}/generated";
     }
 
     /** @noinspection PhpUnused */
@@ -68,11 +62,20 @@ class Paths extends Object_
 
     /** @noinspection PhpUnused */
     protected function get_compiler(): string {
-        return "{$this->generated}/" . Compiler::class;
+        return "{$this->generated}/" . $this->className(Compiler::class);
     }
 
     /** @noinspection PhpUnused */
     protected function get_compiler_locks(): string {
         return "{$this->compiler}/locks";
+    }
+
+    public function className(string $className, string $suffix = null): string {
+        if ($suffix && str_ends_with($className, $suffix)) {
+            $className = mb_substr($className, 0,
+                mb_strlen($className) - mb_strlen($suffix));
+        }
+
+        return str_replace('\\', '_', $className);
     }
 }

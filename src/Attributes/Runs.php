@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Osm\Runtime\Attributes;
+namespace Osm\Core\Attributes;
 
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
-class Creates
+final class Runs
 {
     public string $class_name;
 

@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Osm\Attributes;
+namespace Osm\Core\Attributes;
 
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_PROPERTY)]
-final class Part
+final class Serialized
 {
+
 }

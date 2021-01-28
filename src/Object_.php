@@ -1,16 +1,16 @@
 <?php
 
+/** @noinspection PhpUnusedAliasInspection */
 declare(strict_types=1);
 
-namespace Osm;
+namespace Osm\Core;
 
-use Osm\App\App;
-use Osm\Attributes\Part;
-use Osm\Classes\Class_;
+use Osm\Core\Attributes\Serialized;
 use Osm\Runtime\Object_ as BaseObject;
+use Osm\Core\Attributes\Required;
 
 /**
- * @property Class_ $class
+ * @property Class_ $class #[Required]
  */
 class Object_ extends BaseObject
 {
@@ -34,7 +34,7 @@ class Object_ extends BaseObject
         $result = [];
 
         foreach (get_object_vars($this) as $property => $value) {
-            if (isset($this->class->properties[$property]->attributes[Part::class])) {
+            if (isset($this->class->properties[$property]->attributes[Serialized::class])) {
                 $result[] = $property;
             }
         }

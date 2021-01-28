@@ -5,39 +5,42 @@ declare(strict_types=1);
 namespace Osm\Runtime\Compilation;
 
 use Osm\Runtime\App;
+use Osm\Runtime\Apps;
 use Osm\Runtime\Exceptions\Abort;
 use Osm\Runtime\Exceptions\AbortTimeout;
 use Osm\Runtime\Exceptions\Required;
 use Osm\Runtime\Paths;
 use function Osm\make_dir;
+use function Osm\make_dir_for;
 
 /**
  * Constructor parameters:
  *
- * @property Paths $paths
- * @property int $timeout
+ * @property string $app_class_name
  *
  * Computed:
  *
- * @property string $app_class_name
+ * @property Paths $paths
+ * @property int $timeout
  * @property string $app_name
  * @property Locks $locks
+ * @property CompiledApp $app
  */
 class Compiler extends App
 {
     /** @noinspection PhpUnused */
-    protected function get_paths(): Paths {
+    protected function get_app_class_name(): string {
         throw new Required(__METHOD__);
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_paths(): Paths {
+        return Apps::paths($this->app_class_name);
     }
 
     /** @noinspection PhpUnused */
     protected function get_timeout(): int {
-        throw new Required(__METHOD__);
-    }
-
-    /** @noinspection PhpUnused */
-    protected function get_app_class_name(): string {
-        return $this->paths->app_class_name;
+        return Apps::$compilation_timeout;
     }
 
     /** @noinspection PhpUnused */
@@ -48,6 +51,10 @@ class Compiler extends App
     /** @noinspection PhpUnused */
     protected function get_locks(): Locks {
         return Locks::new(['path' => make_dir($this->paths->compiler_locks)]);
+    }
+
+    protected function get_app(): CompiledApp {
+        return CompiledApp::new();
     }
 
     public function lock(callable $callback) {
@@ -114,6 +121,23 @@ class Compiler extends App
     }
 
     public function compile() {
+        // generates affected classes with applied dynamic traits
+        $this->generateClasses();
 
+        // generates app object, adds the info to it from the runtime objects,
+        // and serializes it
+        $this->serializeApp();
+
+    }
+
+    protected function generateClasses() {
+        $output = "<?php\n\n";
+
+        file_put_contents(make_dir_for($this->paths->classes_php), $output);
+    }
+
+    protected function serializeApp() {
+        file_put_contents(make_dir_for($this->paths->app_ser),
+            serialize($this->app->serialize()));
     }
 }

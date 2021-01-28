@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Osm\Runtime\Compilation\Compiler;
-use Osm\Runtime\Runtime;
+use Osm\Runtime\Apps;
 use Osm\Core\Samples\App;
 
 /**
@@ -44,19 +44,20 @@ use Osm\Core\Samples\App;
 
 require 'vendor/autoload.php';
 
-$osm_app = $compiler = new Compiler([
-    'paths' => Runtime::paths(App::class),
-    'timeout' => Runtime::$compilation_timeout,
-]);
+Apps::$project_path = dirname(__DIR__);
+$compiler = Compiler::new(['app_class_name' => App::class]);
 
-$wait = 100; //ms
+Apps::run($compiler, function(Compiler $compiler) {
+    echo "Starting\n";
 
-echo "Starting\n";
+    $compiler->lock(function(Compiler $compiler) {
+        $wait = 100; //ms
 
-$compiler->lock(function() use ($compiler, $wait) {
-    echo "Running\n";
-    while (true) {
-        $compiler->abortIfSignaled();
-        usleep(($wait + random_int(-10, 10)) * 1000);
-    }
+        echo "Running\n";
+        while (true) {
+            $compiler->abortIfSignaled();
+            usleep(($wait + random_int(-10, 10)) * 1000);
+        }
+    });
 });
+

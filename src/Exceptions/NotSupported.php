@@ -1,6 +1,6 @@
 <?php
 
-namespace Osm\Exceptions;
+namespace Osm\Core\Exceptions;
 
 class NotSupported extends \Exception
 {

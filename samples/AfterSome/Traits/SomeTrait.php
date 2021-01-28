@@ -19,7 +19,7 @@ trait SomeTrait
 
     /** @noinspection PhpUnused */
     protected function get_area_size(): int {
-        /* @var Some $this */
+        /* @var Some|static $this */
 
         return $this->sqr($this->width);
     }

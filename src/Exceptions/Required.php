@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Osm\Runtime\Exceptions;
+namespace Osm\Core\Exceptions;
 
 class Required extends \Exception
 {
