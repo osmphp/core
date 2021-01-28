@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Loading;
 
+use Osm\Attributes\Part;
 use Osm\Runtime\App\App;
 use Osm\Runtime\App\Package;
 use Osm\Runtime\Attributes\Runs;
@@ -16,7 +17,7 @@ use Osm\Runtime\Object_;
  * Computed:
  *
  * @property \stdClass|PackageHint $composer_json
- * @property \stdClass|ComposerLock $composer_lock
+ * @property \stdClass|ComposerLock $composer_lock #[\Osm\Attributes\Part]
  * @property bool $load_dev
  *
  * Dependencies:

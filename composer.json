@@ -11,7 +11,9 @@
     "require": {
         "php": ">=8.0",
         "ext-mbstring": "*",
-        "symfony/lock": "^5"
+        "symfony/lock": "^5",
+        "nikic/php-parser": "^4",
+        "phpdocumentor/reflection-docblock": "^5"
     },
     "require-dev": {
         "phpunit/phpunit": "^9"

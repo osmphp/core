@@ -120,10 +120,10 @@ class test_01_app_loading extends TestCase
                 'path' => "samples/Some",
             ]);
 
-            // WHEN you load the module group
+            // WHEN you load the module
             $module = $loader->load();
 
-            // THEN
+            // THEN its information can be found in its properties
             $this->assertEquals('samples/Some', $module->path);
             $this->assertEquals(\Osm\Core\Samples\Some\Module::class,
                 $module->class_name);

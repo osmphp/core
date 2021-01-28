@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @property array $config
  */
-class test_02 extends TestCase
+class test_11 extends TestCase
 {
     use ComputedProperties;
 
