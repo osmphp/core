@@ -8,7 +8,7 @@ use Osm\Attributes\Part;
 use Osm\Runtime\App\App;
 use Osm\Runtime\App\Package;
 use Osm\Runtime\Attributes\Runs;
-use Osm\Runtime\Factory;
+use Osm\Runtime\OldCompiler;
 use Osm\Runtime\Hints\ComposerLock;
 use Osm\Runtime\Hints\PackageHint;
 use Osm\Runtime\Object_;
@@ -28,32 +28,32 @@ class AppLoader extends Object_
 {
     /** @noinspection PhpUnused */
     protected function get_composer_json(): \stdClass {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
         return json_decode(file_get_contents(
-            "{$osm_factory->project_path}/composer.json"));
+            "{$osm_compiler->project_path}/composer.json"));
     }
 
     /** @noinspection PhpUnused */
     protected function get_composer_lock(): \stdClass {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
         return json_decode(file_get_contents(
-            "{$osm_factory->project_path}/composer.lock"));
+            "{$osm_compiler->project_path}/composer.lock"));
     }
 
     /** @noinspection PhpUnused */
     protected function get_load_dev(): ?bool {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
-        return $osm_factory->load_dev;
+        return $osm_compiler->load_dev;
     }
 
     /** @noinspection PhpUnused */
     protected function get_app(): App {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
-        return $osm_factory->app;
+        return $osm_compiler->app;
     }
 
     public function load(): void {

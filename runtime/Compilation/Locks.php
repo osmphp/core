@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Osm\Runtime;
+namespace Osm\Runtime\Compilation;
 
+use Osm\Runtime\Exceptions\Required;
+use Osm\Runtime\Object_;
 use Symfony\Component\Lock\BlockingStoreInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
@@ -27,6 +29,11 @@ class Locks extends Object_
     protected array $items = [];
 
     /** @noinspection PhpUnused */
+    protected function get_path(): string {
+        throw new Required(__METHOD__);
+    }
+
+    /** @noinspection PhpUnused */
     protected function get_store(): BlockingStoreInterface {
         return new FlockStore($this->path);
     }
@@ -43,15 +50,15 @@ class Locks extends Object_
 
     /** @noinspection PhpUnused */
     protected function get_compiling(): LockInterface {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
-        return $this->get("compiling_{$osm_factory->app_name}_{$osm_factory->env_name}");
+        return $this->get("compiling_{$osm_app->app_name}");
     }
 
     /** @noinspection PhpUnused */
     protected function get_aborting(): LockInterface {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
-        return $this->get("aborting_{$osm_factory->app_name}_{$osm_factory->env_name}");
+        return $this->get("aborting_{$osm_app->app_name}");
     }
 }

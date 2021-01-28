@@ -46,7 +46,7 @@ use function Osm\make_dir_for;
  *
  * @property App $app
  */
-class Factory extends Object_
+class OldCompiler extends Object_
 {
     /** @noinspection PhpUnused */
     protected function get_app_class_name(): string {
@@ -95,90 +95,6 @@ class Factory extends Object_
         return Locks::new($this->locks_config ?? [
             'path' => make_dir("{$this->generated_path}/runtime/locks"),
         ]);
-    }
-
-    /**
-     * Create the application object from the compiled files
-     *
-     * @param array $parameters
-     * @return App
-     */
-    public function create(array $parameters = []): App {
-        /** @noinspection PhpIncludeInspection */
-        require_once $this->classes_php_path;
-
-        /* @var App $app */
-        $app = unserialize(file_get_contents($this->app_ser_path));
-
-        foreach ($parameters as $property => $value) {
-            $app->$property = $value;
-        }
-
-        return $app;
-    }
-
-    public function lock(int $timeout, callable $callback): void {
-        if ($this->locks->compiling->acquire()) {
-            // this process has just got an exclusive right to compile
-            // the application. No other process will compile while this
-            // process does it. Yet, an other process may signal that
-            // it's aborting the current compilation process, so inside
-            // the callback, there should frequent checks for that using
-            // `$osm_factory->abortIfSignaled()`
-            try {
-                $callback();
-            }
-            catch (Abort) {
-                // some other process has signalled the this compilation
-                // process should be aborted, and the callback aborted it
-                // using `$osm_factory->abortIfSignaled()`. Just saying -
-                // there is nothing more to do here
-            }
-            finally {
-                $this->locks->compiling->release();
-            }
-        }
-        elseif ($this->locks->aborting->acquire()) {
-            // some process is running compilation, and this process
-            // has just signaled it to abort. Now this process have
-            // to wait until the first process has aborted
-            $timeout = $timeout * 1000; // ms
-            while ($timeout > 0 && !$this->locks->compiling->acquire()) {
-                $wait = (100 + random_int(-10, 10)) * 1000; // ms
-                $timeout -= $wait;
-                usleep($wait);
-            }
-
-            if ($timeout <= 0) {
-                throw new AbortTimeout();
-            }
-
-            // by now, the previous process has aborted, and this process
-            // got the exclusive right to compile. Run the callback with
-            // the same precautions as in the first if
-            try {
-                $callback();
-            }
-            catch (Abort) {
-            }
-            finally {
-                $this->locks->compiling->release();
-            }
-        }
-        //else {
-            // some process is running compilation, and some other process
-            // is trying to abort it and start a new one. This process has
-            // nothing left to do but to end
-        //}
-
-    }
-
-    public function abortIfSignaled() {
-        if (!$this->locks->aborting->acquire()) {
-            throw new Abort();
-        }
-
-        $this->locks->aborting->release();
     }
 
     /**

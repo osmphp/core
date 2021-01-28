@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Osm\Runtime\Factory;
+use Osm\Runtime\Compilation\Compiler;
 use Osm\Runtime\Runtime;
 use Osm\Core\Samples\App;
 
@@ -44,17 +44,19 @@ use Osm\Core\Samples\App;
 
 require 'vendor/autoload.php';
 
-Runtime::new()->factory(['app_class_name' => App::class], function(Factory $factory) {
-    echo "Starting\n";
+$osm_app = $compiler = new Compiler([
+    'paths' => Runtime::paths(App::class),
+    'timeout' => Runtime::$compilation_timeout,
+]);
 
-    $wait = 100; //ms
-    $timeout = 5000; // ms
+$wait = 100; //ms
 
-    $factory->lock($timeout, function() use ($factory, $wait) {
+echo "Starting\n";
+
+$compiler->lock(function() use ($compiler, $wait) {
     echo "Running\n";
-        while (true) {
-            $factory->abortIfSignaled();
-            usleep(($wait + random_int(-10, 10)) * 1000);
-        }
-    });
+    while (true) {
+        $compiler->abortIfSignaled();
+        usleep(($wait + random_int(-10, 10)) * 1000);
+    }
 });

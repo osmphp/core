@@ -10,7 +10,7 @@ use Osm\Runtime\App\ModuleGroup;
 use Osm\Runtime\App\Package;
 use Osm\Runtime\Attributes\Creates;
 use Osm\Runtime\Attributes\Runs;
-use Osm\Runtime\Factory;
+use Osm\Runtime\OldCompiler;
 use Osm\Runtime\Hints\PackageHint;
 use Osm\Runtime\Object_;
 
@@ -39,17 +39,17 @@ class PackageLoader extends Object_
 
     /** @noinspection PhpUnused */
     protected function get_load_dev(): ?bool {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
-        return $osm_factory->load_dev;
+        return $osm_compiler->load_dev;
     }
 
     /** @noinspection PhpUnused */
     #[Creates(Package::class)]
     protected function get_instance(): ?object {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
-        return $osm_factory->downgrade(CorePackage::new([
+        return $osm_compiler->downgrade(CorePackage::new([
             'name' => $this->package->name,
             'path' => $this->path,
             'after' => array_merge(
@@ -61,9 +61,9 @@ class PackageLoader extends Object_
 
     /** @noinspection PhpUnused */
     protected function get_app(): App {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
-        return $osm_factory->app;
+        return $osm_compiler->app;
     }
 
     public function load(): Package {

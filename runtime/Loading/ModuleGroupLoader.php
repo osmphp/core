@@ -11,7 +11,7 @@ use Osm\Runtime\App\ModuleGroup;
 use Osm\Runtime\App\Package;
 use Osm\Runtime\Attributes\Creates;
 use Osm\Runtime\Attributes\Runs;
-use Osm\Runtime\Factory;
+use Osm\Runtime\OldCompiler;
 use Osm\Runtime\Object_;
 
 /**
@@ -38,9 +38,9 @@ class ModuleGroupLoader extends Object_
 {
     /** @noinspection PhpUnused */
     protected function get_project_path(): string {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
-        return $osm_factory->project_path;
+        return $osm_compiler->project_path;
     }
 
     /** @noinspection PhpUnused */
@@ -61,9 +61,9 @@ class ModuleGroupLoader extends Object_
     /** @noinspection PhpUnused */
     #[Creates(ModuleGroup::class)]
     protected function get_instance(): ?object {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
-        $instance = $osm_factory->downgrade(CoreModuleGroup::new([
+        $instance = $osm_compiler->downgrade(CoreModuleGroup::new([
             'package_name' => $this->package->name,
             '__class_name' => $this->class,
             'path' => rtrim($this->path, "/\\"),
@@ -73,7 +73,7 @@ class ModuleGroupLoader extends Object_
             return null;
         }
 
-        if (!$osm_factory->appMatches($instance->app_class_names)) {
+        if (!$osm_compiler->appMatches($instance->app_class_names)) {
             return null;
         }
 
@@ -88,9 +88,9 @@ class ModuleGroupLoader extends Object_
 
     /** @noinspection PhpUnused */
     protected function get_app(): App {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
-        return $osm_factory->app;
+        return $osm_compiler->app;
     }
 
     public function load(): ?ModuleGroup {

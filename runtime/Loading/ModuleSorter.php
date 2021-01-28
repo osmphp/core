@@ -7,7 +7,7 @@ namespace Osm\Runtime\Loading;
 use Osm\Runtime\App\App;
 use Osm\Runtime\App\Module;
 use Osm\Runtime\Exceptions\CircularDependency;
-use Osm\Runtime\Factory;
+use Osm\Runtime\OldCompiler;
 use Osm\Runtime\Object_;
 
 /**
@@ -27,9 +27,9 @@ class ModuleSorter extends Object_
 {
     /** @noinspection PhpUnused */
     protected function get_app(): App {
-        global $osm_factory; /* @var Factory $osm_factory */
+        global $osm_app; /* @var Compiler $osm_app */
 
-        return $osm_factory->app;
+        return $osm_compiler->app;
     }
 
     public function sort(): void {

@@ -13,7 +13,7 @@ use Osm\Core\Samples\Some\Some;
 use Osm\Runtime\App\App as RuntimeApp;
 use Osm\Runtime\Classes\ClassLoader;
 use Osm\Runtime\Classes\PropertyLoader;
-use Osm\Runtime\Factory;
+use Osm\Runtime\OldCompiler;
 use Osm\Runtime\Loading\AppLoader;
 use Osm\Runtime\Runtime;
 use Osm\Runtime\Traits\ComputedProperties;
@@ -35,7 +35,7 @@ class test_02_property_loading extends TestCase
     }
 
     public function test_loading_from_doc_comment() {
-        Runtime::new()->factory($this->config, function (Factory $factory) {
+        Runtime::new()->factory($this->config, function (OldCompiler $factory) {
             // GIVEN an app with loaded modules and scanned class names
             $app = $factory->app = RuntimeApp::new([
                 'upgrade_to_class_name' => $factory->app_class_name,

@@ -8,7 +8,7 @@ use Osm\Core\Samples\App;
 use Osm\Runtime\App\App as RuntimeApp;
 use Osm\Runtime\App\ModuleGroup;
 use Osm\Runtime\App\Package;
-use Osm\Runtime\Factory;
+use Osm\Runtime\OldCompiler;
 use Osm\Runtime\Loading\ModuleGroupLoader;
 use Osm\Runtime\Loading\ModuleLoader;
 use Osm\Runtime\Loading\PackageLoader;
@@ -31,7 +31,8 @@ class test_01_app_loading extends TestCase
     }
 
     public function test_package_loading() {
-        Runtime::new()->factory($this->config, function (Factory $factory) {
+        $a = 1;
+        Runtime::new()->factory($this->config, function (OldCompiler $factory) {
             // GIVEN an app
             $factory->app = RuntimeApp::new([
                 'upgrade_to_class_name' => $factory->app_class_name,
@@ -58,7 +59,7 @@ class test_01_app_loading extends TestCase
     }
 
     public function test_module_group_loading() {
-        Runtime::new()->factory($this->config, function (Factory $factory) {
+        Runtime::new()->factory($this->config, function (OldCompiler $factory) {
             // GIVEN an app
             $app = $factory->app = RuntimeApp::new([
                 'upgrade_to_class_name' => $factory->app_class_name,
@@ -92,7 +93,7 @@ class test_01_app_loading extends TestCase
     }
 
     public function test_module_loading() {
-        Runtime::new()->factory($this->config, function (Factory $factory) {
+        Runtime::new()->factory($this->config, function (OldCompiler $factory) {
             // GIVEN an app
             $app = $factory->app = RuntimeApp::new([
                 'upgrade_to_class_name' => $factory->app_class_name,
