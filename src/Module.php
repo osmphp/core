@@ -6,14 +6,13 @@ declare(strict_types=1);
 namespace Osm\Core;
 
 use Osm\Core\Attributes\Serialized;
-use Osm\Core\Attributes\Required;
 
 /**
  * Constructor parameters:
  *
- * @property string $class_name #[Serialized, Required]
- * @property string $name #[Serialized, Required]
- * @property string $path #[Serialized, Required]
+ * @property string $class_name #[Serialized]
+ * @property string $name #[Serialized]
+ * @property string $path #[Serialized]
  * @property string $module_group_class_name
  */
 class Module extends Object_

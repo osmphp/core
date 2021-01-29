@@ -6,17 +6,16 @@ declare(strict_types=1);
 namespace Osm\Core;
 
 use Osm\Core\Attributes\Serialized;
-use Osm\Core\Attributes\Required;
 
 /**
  * Constructor parameters:
  *
- * @property string $class_name #[Serialized, Required]
- * @property string $name #[Serialized, Required]
- * @property Package[] $packages #[Serialized, Required]
- * @property ModuleGroup[] $module_groups #[Serialized, Required]
- * @property Module[] $modules #[Serialized, Required]
- * @property Class_[] $classes #[Serialized, Required]
+ * @property string $class_name #[Serialized]
+ * @property string $name #[Serialized]
+ * @property Package[] $packages #[Serialized]
+ * @property ModuleGroup[] $module_groups #[Serialized]
+ * @property Module[] $modules #[Serialized]
+ * @property Class_[] $classes #[Serialized]
  */
 class App extends Object_ {
     public static bool $load_dev_sections = false;

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Osm\Core\Tests;
 
 use Osm\Core\Attributes\Serialized;
-use Osm\Core\Module;
 use Osm\Core\Samples\App;
+use Osm\Core\Samples\Attributes\Marker;
+use Osm\Core\Samples\Some\Some;
 use Osm\Runtime\Apps;
 use Osm\Runtime\Compilation\Compiler;
 use PHPUnit\Framework\TestCase;
@@ -20,13 +21,14 @@ class test_02_property_loading extends TestCase
         Apps::run($compiler, function(Compiler $compiler) {
             // WHEN you access a property,
             // AND it is automatically loaded
-            $property = $compiler->app->classes[Module::class]->properties['name'];
+            $name = $compiler->app->classes[Some::class]->properties['name'];
 
             // THEN its information can be found in its properties
-            $this->assertEquals('string', $property->type);
-            $this->assertNotTrue($property->array);
-            $this->assertTrue($property->nullable);
-            $this->assertTrue(isset($property->attributes[Serialized::class]));
+            $this->assertEquals('string', $name->type);
+            $this->assertNotTrue($name->array);
+            $this->assertFalse($name->nullable);
+            $this->assertTrue(isset($name->attributes[Marker::class]));
+            $this->assertEquals('marker', $name->attributes[Marker::class]->name);
         });
     }
 }

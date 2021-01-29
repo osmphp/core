@@ -7,7 +7,6 @@ namespace Osm\Core;
 
 use Osm\Core\Attributes\Serialized;
 use Osm\Runtime\Object_ as BaseObject;
-use Osm\Core\Attributes\Required;
 
 /**
  * @property Class_ $class #[Required]

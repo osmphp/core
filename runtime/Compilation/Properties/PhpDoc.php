@@ -1,5 +1,6 @@
 <?php
 
+/** @noinspection PhpUnusedAliasInspection */
 declare(strict_types=1);
 
 namespace Osm\Runtime\Compilation\Properties;
@@ -12,62 +13,97 @@ use PhpParser\ConstExprEvaluator;
 use PhpParser\Node;
 use PhpParser\Node\Attribute;
 use PhpParser\NodeVisitor\NameResolver;
+use Osm\Core\Attributes\Expected;
 
 /**
- * @property PhpDocProperty $phpdoc
+ * @property PhpDocProperty $phpdoc #[Expected]
  */
 class PhpDoc extends Property
 {
     /** @noinspection PhpUnused */
-    protected function get_type(): string {
-        return (string)$this->phpdoc->getType();
+    protected function get_type(): ?string {
+        $this->parse();
+        return $this->type;
     }
 
     /** @noinspection PhpUnused */
     protected function get_array(): bool {
-        return false;
+        $this->parse();
+        return $this->array;
     }
 
     /** @noinspection PhpUnused */
     protected function get_nullable(): bool {
-        return true;
+        $this->parse();
+        return $this->nullable;
     }
 
     /** @noinspection PhpUnused */
     protected function get_attributes(): array {
+        $this->parse();
+        return $this->attributes;
+    }
+
+    protected function parse(): void {
         global $osm_app; /* @var Compiler $osm_app */
 
-        if (!($description = $this->phpdoc->getDescription())) {
-            return [];
+        $this->type = null;
+        $this->array = false;
+        $this->nullable = false;
+        $this->attributes = [];
+
+        foreach (explode('|', (string)$this->phpdoc->getType()) as $type) {
+            $type = trim($type);
+
+            if (!$type || $type == 'mixed') {
+                continue;
+            }
+
+            if (str_starts_with($type, '?')) {
+                $this->nullable = true;
+                $type = substr($type, strlen('?'));
+            }
+
+            if ($type == 'array') {
+                $this->array = true;
+                continue;
+            }
+
+            if (str_ends_with($type, '[]')) {
+                $this->array = true;
+                $type = substr($type, 0, strlen($type) - strlen('[]'));
+            }
+
+            $this->type = $type;
+            break;
         }
 
-        if (!preg_match('/^(?<attributes>#\[[^\]]+\])/u',
-            $description->getBodyTemplate(), $match))
-        {
-            return [];
-        }
+        $description = $this->phpdoc->getDescription()?->getBodyTemplate() ?? '';
+        $attributes = preg_match('/^(?<attributes>#\[[^\]]+\])/u',
+            $description, $match) ? $match['attributes'] : '';
 
-        $ast = $osm_app->php_parser->parse(<<<EOT
+        $stmt = $osm_app->php_parser->parse(<<<EOT
 <?php
 
 {$this->class->imports}
 
 class Test {
-    {$match['attributes']}
-    public \$test;
+    {$attributes}
+    public {$this->type} \$test;
 }
 EOT
 );
-        $attributes = [];
-
-        $ast = PhpQuery::new($ast)
+        /* @var Node\Stmt\Property $stmt */
+        $stmt = PhpQuery::new($stmt)
             ->each(new NameResolver())
-            ->find(fn(Node $node) => $node instanceof Attribute)
-            ->stmts;
+            ->findOne(fn(Node $node) => $node instanceof Node\Stmt\Property)
+            ->stmts[0];
+
+        $this->type = $stmt->type->toString();
 
         $evaluator = new ConstExprEvaluator();
 
-        foreach ($ast as $node) {
+        foreach ($stmt->attrGroups[0]->attrs ?? [] as $node) {
             /* @var Attribute $node */
             $class = $node->name->toString();
             $args = [];
@@ -75,9 +111,7 @@ EOT
                 $args[] = $evaluator->evaluateSilently($arg->value);
             }
 
-            $attributes[$class] = new $class(...$args);
+            $this->attributes[$class] = new $class(...$args);
         }
-
-        return $attributes;
     }
 }
