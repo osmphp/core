@@ -7,5 +7,4 @@ namespace Osm\Core\Attributes;
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_PROPERTY)]
 final class Serialized
 {
-
 }

@@ -8,8 +8,10 @@ use Osm\Runtime\App;
 use Osm\Runtime\Apps;
 use Osm\Runtime\Exceptions\Abort;
 use Osm\Runtime\Exceptions\AbortTimeout;
-use Osm\Runtime\Exceptions\Required;
+use Osm\Core\Exceptions\Required;
 use Osm\Runtime\Paths;
+use PhpParser\Parser;
+use PhpParser\ParserFactory;
 use function Osm\make_dir;
 use function Osm\make_dir_for;
 
@@ -25,6 +27,7 @@ use function Osm\make_dir_for;
  * @property string $app_name
  * @property Locks $locks
  * @property CompiledApp $app
+ * @property Parser $php_parser
  */
 class Compiler extends App
 {
@@ -137,7 +140,12 @@ class Compiler extends App
     }
 
     protected function serializeApp() {
-        file_put_contents(make_dir_for($this->paths->app_ser),
-            serialize($this->app->serialize()));
+        Apps::run($this->app->serialize(), function($app) {
+            file_put_contents(make_dir_for($this->paths->app_ser), serialize($app));
+        });
+    }
+
+    protected function get_php_parser(): Parser {
+        return (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     }
 }

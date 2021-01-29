@@ -20,7 +20,7 @@ class test_01_app_loading extends TestCase
         Apps::run($compiler, function(Compiler $compiler) {
             // WHEN you access a package,
             // AND it is automatically loaded
-            $package = $compiler->app->unsorted_packages['osmphp/core'];
+            $package = $compiler->app->packages['osmphp/core'];
 
             // THEN its information can be found in its properties
             $this->assertEquals('osmphp/core', $package->name);
@@ -39,7 +39,7 @@ class test_01_app_loading extends TestCase
         Apps::run($compiler, function(Compiler $compiler) {
             // WHEN you access a module group,
             // AND it is automatically loaded
-            $moduleGroup = $compiler->app->unsorted_module_groups[ModuleGroup::class];
+            $moduleGroup = $compiler->app->module_groups[ModuleGroup::class];
 
             // THEN its information can be found in its properties
             $this->assertEquals('samples', $moduleGroup->path);
@@ -58,7 +58,7 @@ class test_01_app_loading extends TestCase
         Apps::run($compiler, function(Compiler $compiler) {
             // WHEN you access a module,
             // AND it is automatically loaded
-            $module = $compiler->app->unsorted_modules[Module::class];
+            $module = $compiler->app->modules[Module::class];
 
             // THEN its information can be found in its properties
             $this->assertEquals('samples/Some', $module->path);

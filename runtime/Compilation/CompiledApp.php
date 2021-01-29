@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Osm\Runtime\Compilation;
 
 use Osm\Core\App;
+use Osm\Runtime\Exceptions\CircularDependency;
 use Osm\Runtime\Hints\ComposerLock;
 use Osm\Runtime\Hints\PackageHint;
 use Osm\Runtime\Object_;
@@ -23,6 +24,10 @@ use Osm\Runtime\Traits\Serializable;
  * @property Package[] $unsorted_packages
  * @property ModuleGroup[] $unsorted_module_groups
  * @property Module[] $unsorted_modules
+ * @property Package[] $packages
+ * @property ModuleGroup[] $module_groups
+ * @property Module[] $modules
+ * @property Class_[] $classes
  */
 class CompiledApp extends Object_
 {
@@ -241,4 +246,170 @@ class CompiledApp extends Object_
         return is_a($this->class_name, $appClassName, true);
     }
 
+    /** @noinspection PhpUnused */
+    protected function get_packages(): array {
+        $packages = [];
+
+        foreach ($this->unsorted_module_groups as $moduleGroup) {
+            $packages[$moduleGroup->package_name] =
+                $this->unsorted_packages[$moduleGroup->package_name];
+        }
+
+        return $this->sort($packages, 'Packages', function($positions) {
+            return function(Package $a, Package $b) use ($positions) {
+                return $positions[$a->name] <=> $positions[$b->name];
+            };
+        });
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_module_groups(): array {
+        return $this->sort($this->unsorted_module_groups, 'Module groups', function($positions) {
+            $parentKeys = array_flip(array_keys($this->packages));
+
+            return function(ModuleGroup $a, ModuleGroup $b) use ($positions, $parentKeys) {
+                return ($result = $parentKeys[$a->package_name] <=> $parentKeys[$b->package_name]) != 0
+                    ? $result
+                    : $positions[$a->class_name] <=> $positions[$b->class_name];
+            };
+        });
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_modules(): array {
+        return $this->sort($this->unsorted_modules, 'Modules', function($positions) {
+            $parentKeys = array_flip(array_keys($this->module_groups));
+
+            return function(Module $a, Module $b) use ($positions, $parentKeys) {
+                return ($result = $parentKeys[$a->module_group_class_name]
+                        <=> $parentKeys[$b->module_group_class_name]) != 0
+                    ? $result
+                    : $positions[$a->class_name] <=> $positions[$b->class_name];
+            };
+        });
+    }
+
+    protected function sort(array $items, string $pluralTitle,
+        callable $callback): array
+    {
+        $count = count($items);
+
+        $positions = [];
+
+        for ($position = 0; $position < $count; $position++) {
+            $key = $this->findItemWithAlreadyResolvedDependencies($items, $positions);
+            if (!$key) {
+                throw $this->circularDependency($items, $positions, $pluralTitle);
+            }
+
+            $positions[$key] = $position;
+        }
+
+        uasort($items, $callback($positions));
+
+        return $items;
+    }
+
+    protected function findItemWithAlreadyResolvedDependencies(array $items,
+        array $positions): ?string
+    {
+        foreach ($items as $key => $item) {
+            if (isset($positions[$key])) {
+                continue;
+            }
+
+            if ($this->hasUnresolvedDependency($item, $items, $positions)) {
+                continue;
+            }
+
+            return $key;
+        }
+
+        return null;
+    }
+
+    protected function hasUnresolvedDependency(Package|ModuleGroup|Module $item,
+        array $items, array $positions): bool
+    {
+        foreach ($item->after as $key) {
+            if (!isset($items[$key])) {
+                // no such package - don't consider it a dependency
+                continue;
+            }
+
+            if (!isset($positions[$key])) {
+                // dependencies not added to the position array are not
+                // resolved yet
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function circularDependency(array $items, array $positions,
+        string $pluralTitle)
+    {
+        $circular = [];
+
+        foreach ($items as $key => $item) {
+            if (!isset($positions[$key])) {
+                $circular[] = $key;
+            }
+        }
+        return new CircularDependency(
+            sprintf('%s with circular dependencies found: %s',
+            $pluralTitle, implode(', ', $circular)));
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_classes(): array {
+        $classes = [];
+
+        foreach ($this->module_groups as $moduleGroup) {
+            $this->loadClasses($classes, $moduleGroup);
+        }
+
+        return $classes;
+    }
+
+    protected function loadClasses(array &$classes, ModuleGroup $moduleGroup,
+        string $path = '')
+    {
+       global $osm_app; /* @var Compiler $osm_app */
+
+       $moduleGroupPath = "{$osm_app->paths->project}/{$moduleGroup->path}";
+       $absolutePath = $path ? "{$moduleGroupPath}/{$path}" : $moduleGroupPath;
+
+       foreach (new \DirectoryIterator($absolutePath) as $fileInfo) {
+            if ($fileInfo->isDot()) {
+                continue;
+            }
+
+            if (!preg_match('/^[A-Z]/', $fileInfo->getFilename())) {
+                continue;
+            }
+
+            if ($fileInfo->isDir()) {
+                $this->loadClasses($classes, $moduleGroup,
+                    ($path ? "{$path}/" : '') . $fileInfo->getFilename());
+                continue;
+            }
+
+            if ($fileInfo->getExtension() != 'php') {
+                continue;
+            }
+
+            $className = $moduleGroup->namespace . '\\' .
+                str_replace('/', '\\',
+                    ($path ? "{$path}/" : '') .
+                    pathinfo($fileInfo->getFilename(), PATHINFO_FILENAME)
+                );
+
+            $classes[$className] = Class_::new([
+                'name' => $className,
+                'filename' => "{$absolutePath}/{$fileInfo->getFilename()}",
+            ]);
+        }
+    }
 }
