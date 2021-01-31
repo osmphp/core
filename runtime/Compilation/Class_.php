@@ -22,6 +22,9 @@ use PhpParser\Node;
  *
  * @property \ReflectionClass $reflection
  * @property Class_ $parent_class
+ * @property Class_[] $static_traits
+ * @property Class_[] $dynamic_traits
+ * @property Class_[] $traits
  * @property Property[] $inherited_properties
  * @property Property[] $doc_comment_properties
  * @property Property[] $actual_properties
@@ -52,6 +55,43 @@ class Class_ extends Object_
         }
 
         return $osm_app->app->classes[$class->getName()] ?? null;
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_static_traits(): array {
+        global $osm_app; /* @var Compiler $osm_app */
+
+        $traits = [];
+
+        foreach ($this->reflection->getTraits() ?? [] as $trait) {
+            if (isset($osm_app->app->classes[$trait->getName()])) {
+                $traits[$trait->getName()] =
+                    $osm_app->app->classes[$trait->getName()];
+            }
+        }
+
+        return $traits;
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_dynamic_traits(): array {
+        global $osm_app; /* @var Compiler $osm_app */
+
+        $traits = [];
+
+        foreach ($osm_app->app->modules as $module) {
+            if (isset($module->traits[$this->name])) {
+                $traits[$module->traits[$this->name]] =
+                    $osm_app->app->classes[$module->traits[$this->name]];
+            }
+        }
+
+        return $traits;
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_traits(): array {
+        return array_merge($this->static_traits, $this->dynamic_traits);
     }
 
     /** @noinspection PhpUnused */
@@ -116,6 +156,13 @@ class Class_ extends Object_
     /** @noinspection PhpUnused */
     protected function get_properties() : array {
         $properties = $this->parent_class?->properties;
+
+        foreach ($this->traits as $trait) {
+            foreach ($trait->properties as $name => $property) {
+                $properties[$name] = $this->mergeProperty($properties[$name] ?? null,
+                    $property);
+            }
+        }
 
         foreach ($this->actual_properties as $name => $property) {
             $properties[$name] = $this->mergeProperty($properties[$name] ?? null,

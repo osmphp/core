@@ -15,6 +15,6 @@ class Module extends BaseModule
     ];
 
     public static array $traits = [
-        Some::class => Traits\SomeTrait::class,
+        Some::class => Traits\DynamicTrait::class,
     ];
 }

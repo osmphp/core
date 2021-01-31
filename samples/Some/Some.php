@@ -8,6 +8,7 @@ namespace Osm\Core\Samples\Some;
 use Osm\Core\Object_;
 use Osm\Core\Samples\Attributes\Marker;
 use Osm\Core\Samples\Attributes\Repeatable;
+use Osm\Core\Samples\Some\Traits\StaticTrait;
 
 /**
  * @property mixed|string|int $name #[Marker('marker')]
@@ -15,6 +16,8 @@ use Osm\Core\Samples\Attributes\Repeatable;
  */
 class Some extends Object_
 {
+    use StaticTrait;
+
     /**
      * @var Some[]
      */

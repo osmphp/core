@@ -1,11 +1,9 @@
 <?php
 
-/** @noinspection PhpUnusedAliasInspection */
 declare(strict_types=1);
 
 namespace Osm\Core\Tests;
 
-use Osm\Core\Attributes\Serialized;
 use Osm\Core\Samples\App;
 use Osm\Core\Samples\Attributes\Marker;
 use Osm\Core\Samples\Attributes\Repeatable;
@@ -15,7 +13,7 @@ use Osm\Runtime\Apps;
 use Osm\Runtime\Compilation\Compiler;
 use PHPUnit\Framework\TestCase;
 
-class test_02_property_loading extends TestCase
+class test_03_property_loading extends TestCase
 {
     public function test_doc_comment_property() {
         // GIVEN a compiler configured to compile a sample app
@@ -74,7 +72,7 @@ class test_02_property_loading extends TestCase
         });
     }
 
-    public function test_merged_property() {
+    public function test_parent_class_property() {
         // GIVEN a compiler configured to compile a sample app
         $compiler = Compiler::new(['app_class_name' => App::class]);
 
@@ -102,4 +100,19 @@ class test_02_property_loading extends TestCase
         });
     }
 
+    public function test_trait_property() {
+        // GIVEN a compiler configured to compile a sample app
+        $compiler = Compiler::new(['app_class_name' => App::class]);
+
+        Apps::run($compiler, function(Compiler $compiler) {
+            // WHEN you access a property, that is automatically copied
+            // from the trait
+            $pi = $compiler->app->classes[Some::class]->properties['pi'];
+
+            // THEN their information can be found in its properties
+            $this->assertEquals('float', $pi->type);
+            $this->assertNotTrue($pi->array);
+            $this->assertFalse($pi->nullable);
+        });
+    }
 }

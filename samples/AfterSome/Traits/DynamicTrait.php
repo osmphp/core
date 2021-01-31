@@ -10,7 +10,7 @@ use Osm\Core\Samples\Some\Some;
  * @property int $width
  * @property int $area_size
  */
-trait SomeTrait
+trait DynamicTrait
 {
     /** @noinspection PhpUnused */
     protected function get_width(): int {
