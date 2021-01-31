@@ -8,7 +8,9 @@ use Osm\Runtime\Object_;
 use Osm\Runtime\Traits\Serializable;
 use phpDocumentor\Reflection\DocBlock\Tags\Property as PhpDocProperty;
 use phpDocumentor\Reflection\DocBlockFactory;
+use phpDocumentor\Reflection\Types\Context;
 use PhpParser\Node;
+use function Osm\merge;
 
 /**
  * Constructor parameters
@@ -20,8 +22,11 @@ use PhpParser\Node;
  *
  * @property \ReflectionClass $reflection
  * @property Property[] $doc_comment_properties
+ * @property Property[] $actual_properties
  * @property Property[] $properties
- * @property string $imports
+ * @property Node[] $ast
+ * @property PhpQuery $imports
+ * @property Context $type_context
  */
 class Class_ extends Object_
 {
@@ -45,7 +50,7 @@ class Class_ extends Object_
         }
 
         $factory = DocBlockFactory::createInstance();
-        $docBlock = $factory->create($comment);
+        $docBlock = $factory->create($comment, $this->type_context);
 
         foreach ($docBlock->getTagsByName('property') as $property) {
             /* @var PhpDocProperty $property */
@@ -65,18 +70,68 @@ class Class_ extends Object_
     }
 
     /** @noinspection PhpUnused */
+    protected function get_actual_properties(): array {
+        $properties = [];
+
+        foreach ($this->reflection->getProperties(\ReflectionProperty::IS_PUBLIC)
+            as $reflection)
+        {
+            if ($reflection->isStatic()) {
+                continue;
+            }
+
+            if ($reflection->getDeclaringClass() != $this->reflection) {
+                continue;
+            }
+
+            $properties[$reflection->getName()] =
+                $this->loadActualProperty($reflection);
+        }
+
+        return $properties;
+    }
+
+    protected function loadActualProperty(\ReflectionProperty $property): Property {
+        return Properties\Reflection::new([
+            'class' => $this,
+            'name' => $property->getName(),
+            'reflection' => $property,
+        ]);
+    }
+
+
+    /** @noinspection PhpUnused */
     protected function get_properties() : array {
-        return $this->doc_comment_properties;
+        return merge($this->actual_properties, $this->doc_comment_properties);
     }
 
     /** @noinspection PhpUnused */
-    protected function get_imports() : string {
+    protected function get_ast(): array {
         global $osm_app; /* @var Compiler $osm_app */
 
-        $ast = $osm_app->php_parser->parse(file_get_contents($this->filename));
+        return $osm_app->php_parser->parse(file_get_contents($this->filename));
+    }
 
-        return PhpQuery::new($ast)
-            ->find(fn (Node $node) => $node instanceof Node\Stmt\Use_)
-            ->toString();
+    /** @noinspection PhpUnused */
+    protected function get_imports() : PhpQuery {
+        return PhpQuery::new($this->ast)
+            ->find(fn (Node $node) => $node instanceof Node\Stmt\Use_);
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_type_context(): Context {
+        $aliases = [];
+
+        foreach ($this->imports->stmts as $import) {
+            /* @var Node\Stmt\Use_ $import */
+            foreach ($import->uses as $use) {
+                $a = 1;
+                $alias = $use->getAlias()?->toString() ??
+                    $use->name->parts[count($use->name->parts) - 1];
+                $aliases[$alias] = $use->name->toString();
+            }
+        }
+
+        return new Context($this->reflection->getNamespaceName(), $aliases);
     }
 }
