@@ -83,6 +83,7 @@ EOT
 
         $evaluator = new ConstExprEvaluator();
 
+        $attributes = $this->attributes;
         foreach ($stmt->attrGroups[0]->attrs ?? [] as $node) {
             /* @var Node\Attribute $node */
             $class = $node->name->toString();
@@ -91,21 +92,8 @@ EOT
                 $args[] = $evaluator->evaluateSilently($arg->value);
             }
 
-            $this->addAttribute($class, new $class(...$args));
+            $this->addAttribute($attributes, $class, new $class(...$args));
         }
-    }
-
-    protected function addAttribute($class, $attribute) {
-        $reflection = new \ReflectionClass($class);
-        $attributeFlags = $reflection->getAttributes(\Attribute::class)[0] ?? null;
-        if (($attributeFlags?->newInstance()->flags ?? 0) & \Attribute::IS_REPEATABLE) {
-            if (!isset($this->attributes[$class])) {
-                $this->attributes[$class] = [];
-            }
-            $this->attributes[$class][] = $attribute;
-        }
-        else {
-            $this->attributes[$class] = $attribute;
-        }
+        $this->attributes = $attributes;
     }
 }

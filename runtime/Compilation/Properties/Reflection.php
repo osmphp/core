@@ -36,8 +36,7 @@ class Reflection extends Property
         $attributes = [];
 
         foreach ($this->reflection->getAttributes() as $attribute) {
-            // TODO: handle repeated attributes, both here and in PhpDoc properties
-            $attributes[$attribute->getName()] = $attribute->newInstance();
+            $this->addAttribute($attributes, $attribute->getName(), $attribute->newInstance());
         }
 
         return $attributes;
