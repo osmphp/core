@@ -6,5 +6,5 @@ namespace Osm\Core\Samples\Some;
 
 class Other extends Some
 {
-
+    public string $name = 'other';
 }

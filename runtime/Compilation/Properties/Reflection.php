@@ -60,7 +60,7 @@ class Reflection extends Property
 
     protected function parse(): void {
         $this->type = null;
-        $this->array = null;
+        $this->array = false;
         $this->nullable = null;
 
         $this->parsePhpDocType($this->getDocCommentType());

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Compilation;
 
+use Osm\Runtime\Compilation\Properties\Merged as MergedProperty;
 use Osm\Runtime\Object_;
 use Osm\Runtime\Traits\Serializable;
 use phpDocumentor\Reflection\DocBlock\Tags\Property as PhpDocProperty;
 use phpDocumentor\Reflection\DocBlockFactory;
 use phpDocumentor\Reflection\Types\Context;
 use PhpParser\Node;
-use function Osm\merge;
 
 /**
  * Constructor parameters
@@ -21,6 +21,8 @@ use function Osm\merge;
  * Computed:
  *
  * @property \ReflectionClass $reflection
+ * @property Class_ $parent_class
+ * @property Property[] $inherited_properties
  * @property Property[] $doc_comment_properties
  * @property Property[] $actual_properties
  * @property Property[] $properties
@@ -39,6 +41,17 @@ class Class_ extends Object_
     /** @noinspection PhpUnused */
     protected function get_reflection(): \ReflectionClass {
         return new \ReflectionClass($this->name);
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_parent_class(): ?Class_ {
+        global $osm_app; /* @var Compiler $osm_app */
+
+        if (!($class = $this->reflection->getParentClass())) {
+            return null;
+        }
+
+        return $osm_app->app->classes[$class->getName()] ?? null;
     }
 
     /** @noinspection PhpUnused */
@@ -102,7 +115,19 @@ class Class_ extends Object_
 
     /** @noinspection PhpUnused */
     protected function get_properties() : array {
-        return merge($this->actual_properties, $this->doc_comment_properties);
+        $properties = $this->parent_class?->properties;
+
+        foreach ($this->actual_properties as $name => $property) {
+            $properties[$name] = $this->mergeProperty($properties[$name] ?? null,
+                $property);
+        }
+
+        foreach ($this->doc_comment_properties as $name => $property) {
+            $properties[$name] = $this->mergeProperty($properties[$name] ?? null,
+                $property);
+        }
+
+        return $properties;
     }
 
     /** @noinspection PhpUnused */
@@ -133,5 +158,23 @@ class Class_ extends Object_
         }
 
         return new Context($this->reflection->getNamespaceName(), $aliases);
+    }
+
+    protected function mergeProperty(?Property $base, Property $derived): Property {
+        if (!$base) {
+            return $derived;
+        }
+
+        $base = MergedProperty::new([
+            'name' => $base->name,
+            'class' => $this,
+            'properties' => $base instanceof MergedProperty ?
+                $base->properties :
+                [$base],
+        ]);
+
+        $base->properties[] = $derived;
+
+        return $base;
     }
 }
