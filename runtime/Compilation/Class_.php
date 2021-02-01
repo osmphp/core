@@ -106,7 +106,13 @@ class Class_ extends Object_
         }
 
         $factory = DocBlockFactory::createInstance();
-        $docBlock = $factory->create($comment, $this->type_context);
+        try {
+            $docBlock = $factory->create($comment, $this->type_context);
+        }
+        catch (\Exception $e) {
+            throw new \Exception("{$this->name}: {$e->getMessage()}",
+                $e->getCode(), $e);
+        }
 
         foreach ($docBlock->getTagsByName('property') as $property) {
             /* @var PhpDocProperty $property */
@@ -158,7 +164,7 @@ class Class_ extends Object_
 
     /** @noinspection PhpUnused */
     protected function get_properties() : array {
-        $properties = $this->parent_class?->properties;
+        $properties = $this->parent_class?->properties ?? [];
 
         foreach ($this->traits as $trait) {
             foreach ($trait->properties as $name => $property) {
@@ -210,7 +216,7 @@ class Class_ extends Object_
 
     /** @noinspection PhpUnused */
     protected function get_methods() : array {
-        $methods = $this->parent_class?->methods;
+        $methods = $this->parent_class?->methods ?? [];
 
         foreach ($this->traits as $trait) {
             foreach ($trait->methods as $name => $method) {

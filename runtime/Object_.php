@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime;
 
-use Osm\Exceptions\NotSupported;
+use Osm\Core\Exceptions\NotSupported;
 use Osm\Runtime\Traits\ComputedProperties;
 
 /**
@@ -26,8 +26,8 @@ class Object_
         return static::createInstance($class, $data);
     }
 
-    protected static function createInstance(string $class, array $data): static {
-        return new $class($data);
+    protected static function createInstance(string $className, array $data): static {
+        return new $className($data);
     }
 
     public function __construct(array $data = []) {

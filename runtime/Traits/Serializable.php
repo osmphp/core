@@ -7,6 +7,7 @@ namespace Osm\Runtime\Traits;
 use Osm\Core\Attributes\Serialized;
 use Osm\Core\Exceptions\Required;
 use Osm\Runtime\Compilation\Compiler;
+use Osm\Runtime\Object_;
 
 /**
  * @property string $serialized_class_name
@@ -36,12 +37,14 @@ trait Serializable
                 continue;
             }
 
-            if ($value instanceof static) {
+            if ($value instanceof Object_) {
+                /* @var static $value */
                 $value = $value->serialize();
             }
             elseif (is_array($value)) {
                 foreach ($value as $key => &$item) {
-                    if ($item instanceof static) {
+                    if ($item instanceof Object_) {
+                        /* @var static $item */
                         $item = $item->serialize();
                     }
                 }

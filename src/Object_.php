@@ -1,6 +1,5 @@
 <?php
 
-/** @noinspection PhpUnusedAliasInspection */
 declare(strict_types=1);
 
 namespace Osm\Core;
@@ -9,35 +8,36 @@ use Osm\Core\Attributes\Serialized;
 use Osm\Runtime\Object_ as BaseObject;
 
 /**
- * @property Class_ $class #[Required]
+ * @property Class_ $__class
  */
 class Object_ extends BaseObject
 {
-    protected function get_class(): Class_ {
+    /** @noinspection PhpUnused */
+    protected function get___class(): Class_ {
         global $osm_app; /* @var App $osm_app */
 
         return $osm_app->classes[$this::class];
     }
 
-    protected static function createInstance(string $class, array $data): static {
+    protected static function createInstance(string $className, array $data): static {
         global $osm_app; /* @var App $osm_app */
 
-        if (isset($osm_app->classes[$class]->actual_name)) {
-            $class = $osm_app->classes[$class]->actual_name;
-        }
+        $data['__class'] = $class = $osm_app->classes[$className];
 
-        return parent::createInstance($class, $data);
+        return parent::createInstance($class->actual_name ?? $className, $data);
     }
 
     public function __sleep(): array {
-        $result = [];
+        $propertyNames = [];
 
-        foreach (get_object_vars($this) as $property => $value) {
-            if (isset($this->class->properties[$property]->attributes[Serialized::class])) {
-                $result[] = $property;
+        foreach (get_object_vars($this) as $propertyName => $value) {
+            if (isset($this->__class->properties[$propertyName]
+                ->attributes[Serialized::class]))
+            {
+                $propertyNames[] = $propertyName;
             }
         }
 
-        return $result;
+        return $propertyNames;
     }
 }

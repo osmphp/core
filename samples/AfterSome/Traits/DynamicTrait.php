@@ -9,6 +9,7 @@ use Osm\Core\Samples\Some\Some;
 /**
  * @property int $width
  * @property int $area_size
+ * @property bool $round_pi
  */
 trait DynamicTrait
 {
@@ -26,6 +27,6 @@ trait DynamicTrait
 
     /** @noinspection PhpUnused */
     protected function around_get_pi(callable $proceed): float {
-        return $proceed();
+        return $this->round_pi ? 3.0 : $proceed();
     }
 }

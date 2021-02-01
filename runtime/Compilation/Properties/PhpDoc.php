@@ -92,7 +92,12 @@ EOT
                 $args[] = $evaluator->evaluateSilently($arg->value);
             }
 
-            $osm_app->app->addAttribute($attributes, $class, new $class(...$args));
+            try {
+                $osm_app->app->addAttribute($attributes, $class, new $class(...$args));
+            }
+            catch (\Error $e) {
+                throw new \Error("{$this->class->name}: {$e->getMessage()}", $e->getCode(), $e);
+            }
         }
         $this->attributes = $attributes;
     }

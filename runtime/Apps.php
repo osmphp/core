@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Osm\Runtime;
 
-use Osm\Runtime\Attributes\Runs;
+use Osm\Runtime\App as RuntimeApp;
+use Osm\Core\App as CoreApp;
+use Osm\Core\Attributes\Runs;
 use Osm\Runtime\Compilation\Compiler;
 
 final class Apps
@@ -14,8 +16,8 @@ final class Apps
     public static string $paths_class_name = Paths::class;
     private static array $apps = [];
 
-    public static function enter(App $app): void {
-        global $osm_app; /* @var App $osm_app */
+    public static function enter(RuntimeApp|CoreApp $app): void {
+        global $osm_app; /* @var RuntimeApp|CoreApp $osm_app */
 
         array_push(self::$apps, $app);
         $osm_app = $app;
@@ -27,7 +29,7 @@ final class Apps
         $osm_app = array_pop(self::$apps);
     }
 
-    public static function run(App $app, callable $callback): mixed {
+    public static function run(RuntimeApp|CoreApp $app, callable $callback): mixed {
         self::enter($app);
         try {
             return $callback($app);
@@ -37,7 +39,7 @@ final class Apps
         }
     }
 
-    public static function create(string $appClassName): App {
+    public static function create(string $appClassName): CoreApp {
         $paths = self::paths($appClassName);
 
         /** @noinspection PhpIncludeInspection */

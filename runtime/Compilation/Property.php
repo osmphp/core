@@ -12,11 +12,12 @@ use Osm\Core\Attributes\Expected;
 /**
  * @property Class_ $class #[Expected]
  * @property string $name #[Expected]
+ * @property string $class_name
  * @property ?string $type
  * @property bool $array
  * @property bool $nullable
  * @property array|object[] $attributes
- * @property Method? $getter
+ * @property ?Method $getter
  */
 class Property extends Object_
 {
@@ -58,5 +59,10 @@ class Property extends Object_
     /** @noinspection PhpUnused */
     protected function get_getter(): ?Method {
         return $this->class->methods["get_{$this->name}"] ?? null;
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_class_name(): string {
+        return $this->class->name;
     }
 }
