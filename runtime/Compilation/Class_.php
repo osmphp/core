@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Osm\Runtime\Compilation;
 
 use Osm\Runtime\Compilation\Properties\Merged as MergedProperty;
+use Osm\Runtime\Compilation\Methods\Merged as MergedMethod;
 use Osm\Runtime\Object_;
 use Osm\Runtime\Traits\Serializable;
 use phpDocumentor\Reflection\DocBlock\Tags\Property as PhpDocProperty;
@@ -29,6 +30,8 @@ use PhpParser\Node;
  * @property Property[] $doc_comment_properties
  * @property Property[] $actual_properties
  * @property Property[] $properties
+ * @property Method[] $actual_methods
+ * @property Method[] $methods
  * @property Node[] $ast
  * @property PhpQuery $imports
  * @property Context $type_context
@@ -178,6 +181,51 @@ class Class_ extends Object_
     }
 
     /** @noinspection PhpUnused */
+    protected function get_actual_methods(): array {
+        $methods = [];
+
+        foreach ($this->reflection->getMethods() as $reflection) {
+            if ($reflection->isStatic()) {
+                continue;
+            }
+
+            if ($reflection->getDeclaringClass() != $this->reflection) {
+                continue;
+            }
+
+            $methods[$reflection->getName()] = $this->loadActualMethod($reflection);
+        }
+
+        return $methods;
+    }
+
+    protected function loadActualMethod(\ReflectionMethod $method): Method {
+        return Methods\Reflection::new([
+            'class' => $this,
+            'name' => $method->getName(),
+            'reflection' => $method,
+        ]);
+    }
+
+
+    /** @noinspection PhpUnused */
+    protected function get_methods() : array {
+        $methods = $this->parent_class?->methods;
+
+        foreach ($this->traits as $trait) {
+            foreach ($trait->methods as $name => $method) {
+                $methods[$name] = $this->mergeMethod($methods[$name] ?? null, $method);
+            }
+        }
+
+        foreach ($this->actual_methods as $name => $method) {
+            $methods[$name] = $this->mergeMethod($methods[$name] ?? null, $method);
+        }
+
+        return $methods;
+    }
+
+    /** @noinspection PhpUnused */
     protected function get_ast(): array {
         global $osm_app; /* @var Compiler $osm_app */
 
@@ -221,6 +269,24 @@ class Class_ extends Object_
         ]);
 
         $base->properties[] = $derived;
+
+        return $base;
+    }
+
+    protected function mergeMethod(?Method $base, Method $derived): Method {
+        if (!$base) {
+            return $derived;
+        }
+
+        $base = MergedMethod::new([
+            'name' => $base->name,
+            'class' => $this,
+            'methods' => $base instanceof MergedMethod ?
+                $base->methods :
+                [$base],
+        ]);
+
+        $base->methods[] = $derived;
 
         return $base;
     }

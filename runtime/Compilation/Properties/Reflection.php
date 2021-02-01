@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Compilation\Properties;
 
+use Osm\Runtime\Compilation\Compiler;
 use Osm\Runtime\Compilation\Property;
 use phpDocumentor\Reflection\DocBlockFactory;
 use phpDocumentor\Reflection\DocBlock\Tags\Var_ as PhpDocVar;
@@ -33,10 +34,13 @@ class Reflection extends Property
 
     /** @noinspection PhpUnused */
     protected function get_attributes(): array {
+        global $osm_app; /* @var Compiler $osm_app */
+
         $attributes = [];
 
         foreach ($this->reflection->getAttributes() as $attribute) {
-            $this->addAttribute($attributes, $attribute->getName(), $attribute->newInstance());
+            $osm_app->app->addAttribute($attributes, $attribute->getName(),
+                $attribute->newInstance());
         }
 
         return $attributes;

@@ -33,7 +33,7 @@ class test_03_property_loading extends TestCase
         });
     }
 
-    public function test_reflection_property() {
+    public function test_property_reflection() {
         // GIVEN a compiler configured to compile a sample app
         $compiler = Compiler::new(['app_class_name' => App::class]);
 

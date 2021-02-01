@@ -23,4 +23,9 @@ trait DynamicTrait
 
         return $this->sqr($this->width);
     }
+
+    /** @noinspection PhpUnused */
+    protected function around_get_pi(callable $proceed): float {
+        return $proceed();
+    }
 }

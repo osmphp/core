@@ -412,4 +412,20 @@ class CompiledApp extends Object_
             ]);
         }
     }
+
+    public function addAttribute(array &$attributes, string $class,
+        object $attribute): void
+    {
+        $reflection = new \ReflectionClass($class);
+        $attributeFlags = $reflection->getAttributes(\Attribute::class)[0] ?? null;
+        if (($attributeFlags?->newInstance()->flags ?? 0) & \Attribute::IS_REPEATABLE) {
+            if (!isset($attributes[$class])) {
+                $attributes[$class] = [];
+            }
+            $attributes[$class][] = $attribute;
+        }
+        else {
+            $attributes[$class] = $attribute;
+        }
+    }
 }

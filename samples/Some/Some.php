@@ -27,6 +27,7 @@ class Some extends Object_
     #[Repeatable('hi'), Repeatable('world')]
     public string $note;
 
+    #[Repeatable('method')]
     protected function sqr(int $x): int {
         return $x * $x;
     }

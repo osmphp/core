@@ -10,17 +10,13 @@ use Osm\Runtime\Traits\Serializable;
 use Osm\Core\Attributes\Expected;
 
 /**
- * Constructor parameters:
- *
  * @property Class_ $class #[Expected]
  * @property string $name #[Expected]
- *
- * Computed:
- *
  * @property ?string $type
  * @property bool $array
  * @property bool $nullable
  * @property array|object[] $attributes
+ * @property Method? $getter
  */
 class Property extends Object_
 {
@@ -59,20 +55,8 @@ class Property extends Object_
         }
     }
 
-
-    protected function addAttribute(array &$attributes, string $class,
-        object $attribute): void
-    {
-        $reflection = new \ReflectionClass($class);
-        $attributeFlags = $reflection->getAttributes(\Attribute::class)[0] ?? null;
-        if (($attributeFlags?->newInstance()->flags ?? 0) & \Attribute::IS_REPEATABLE) {
-            if (!isset($attributes[$class])) {
-                $attributes[$class] = [];
-            }
-            $attributes[$class][] = $attribute;
-        }
-        else {
-            $attributes[$class] = $attribute;
-        }
+    /** @noinspection PhpUnused */
+    protected function get_getter(): ?Method {
+        return $this->class->methods["get_{$this->name}"] ?? null;
     }
 }
