@@ -35,6 +35,12 @@ use PhpParser\Node;
  * @property Node[] $ast
  * @property PhpQuery $imports
  * @property Context $type_context
+ * @property bool $generated
+ * @property ?string $generated_name
+ * @property ?string $generated_namespace
+ * @property string $short_name
+ * @property bool $abstract
+ * @property string $namespace
  */
 class Class_ extends Object_
 {
@@ -190,7 +196,9 @@ class Class_ extends Object_
     protected function get_actual_methods(): array {
         $methods = [];
 
-        foreach ($this->reflection->getMethods() as $reflection) {
+        foreach ($this->reflection->getMethods(\ReflectionMethod::IS_PUBLIC |
+            \ReflectionMethod::IS_PROTECTED) as $reflection)
+        {
             if ($reflection->isStatic()) {
                 continue;
             }
@@ -295,5 +303,50 @@ class Class_ extends Object_
         $base->methods[] = $derived;
 
         return $base;
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_generated(): bool {
+        if ($this->abstract) {
+            return false;
+        }
+        if (!empty($this->dynamic_traits)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_generated_name(): ?string {
+        global $osm_app; /* @var Compiler $osm_app */
+
+        return $this->generated
+            ? "{$osm_app->app->name}\\{$this->name}"
+            : null;
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_generated_namespace(): ?string {
+        global $osm_app; /* @var Compiler $osm_app */
+
+        return $this->generated
+            ? "{$osm_app->app->name}\\{$this->namespace}"
+            : null;
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_short_name(): ?string {
+        return $this->reflection->getShortName();
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_abstract(): bool {
+        return $this->reflection->isAbstract();
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_namespace(): string {
+        return $this->reflection->getNamespaceName();
     }
 }

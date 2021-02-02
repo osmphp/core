@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Compilation;
 
+use Osm\Core\Attributes\Runs;
 use Osm\Runtime\App;
 use Osm\Runtime\Apps;
 use Osm\Runtime\Exceptions\Abort;
@@ -56,6 +57,7 @@ class Compiler extends App
         return Locks::new(['path' => make_dir($this->paths->compiler_locks)]);
     }
 
+    /** @noinspection PhpUnused */
     protected function get_app(): CompiledApp {
         return CompiledApp::new();
     }
@@ -136,7 +138,18 @@ class Compiler extends App
     protected function generateClasses() {
         $output = "<?php\n\n";
 
+        foreach ($this->app->classes as $class) {
+            if ($class->generated_name) {
+                $output .= $this->generateClass($class);
+            }
+        }
+
         file_put_contents(make_dir_for($this->paths->classes_php), $output);
+    }
+
+    #[Runs(Generator::class)]
+    protected function generateClass(Class_ $class): string {
+        return Generator::new(['class' => $class])->generate();
     }
 
     protected function serializeApp() {
@@ -145,6 +158,7 @@ class Compiler extends App
         });
     }
 
+    /** @noinspection PhpUnused */
     protected function get_php_parser(): Parser {
         return (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     }

@@ -428,4 +428,24 @@ class CompiledApp extends Object_
             $attributes[$class] = $attribute;
         }
     }
+
+    public function parseType(\ReflectionType $type): string {
+        $types = $type instanceof \ReflectionUnionType
+            ? $type->getTypes()
+            : [$type];
+
+        $result = '';
+
+        foreach ($types as $type) {
+            if ($result) {
+                $result .= " | ";
+            }
+            if (!$type->isBuiltin()) {
+                $result .= '\\';
+            }
+            $result .= $type->getName();
+        }
+
+        return $result;
+    }
 }

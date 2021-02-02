@@ -24,7 +24,7 @@ class Object_ extends BaseObject
 
         $data['__class'] = $class = $osm_app->classes[$className];
 
-        return parent::createInstance($class->actual_name ?? $className, $data);
+        return parent::createInstance($class->generated_name ?? $className, $data);
     }
 
     public function __sleep(): array {
