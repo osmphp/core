@@ -100,7 +100,7 @@ class CompiledApp extends Object_
 
     protected function loadPackage(\stdClass|PackageHint $json, bool $root = false): Package {
         return Package::new([
-            'name' => $json->name,
+            'name' => $json->name ?? '',
             'path' => $root ? '' : "vendor/{$json->name}",
             'json' => $json,
             'after' => array_merge(
