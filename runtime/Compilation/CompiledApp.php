@@ -85,7 +85,7 @@ class CompiledApp extends Object_
             $this->loadPackages($packages, 'packages-dev');
         }
 
-        $packages[$this->composer_json->name] =
+        $packages[$this->composer_json->name ?? ''] =
             $this->loadPackage($this->composer_json, root: true);
 
         return $packages;
