@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Compilation;
 
-use Osm\Runtime\Exceptions\Required;
+use Osm\Core\Exceptions\Required;
 use Osm\Runtime\Object_;
 use Symfony\Component\Lock\BlockingStoreInterface;
 use Symfony\Component\Lock\LockFactory;
