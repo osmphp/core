@@ -1,7 +1,6 @@
-* About osmphp/core 
-* Prerequisites 
-* Installation 
-* Features
+* [About osmphp/core](#about-osmphpcore) 
+* [Prerequisites](#prerequisites) 
+* [Installation](#installation) 
 
 ## About `osmphp/core`
 
