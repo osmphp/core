@@ -32,5 +32,8 @@
             "Osm\\Core\\Tests\\": "tests/",
             "Osm\\Core\\Samples\\": "samples/"
         }
-    }
+    },
+    "bin": [
+        "bin/osmc"
+    ]
 }
