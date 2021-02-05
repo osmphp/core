@@ -1,6 +1,6 @@
 {
     "name": "osmphp/core",
-    "description": "A PHP library for making modular and extensible applications",
+    "description": "Enables modular software development in any PHP project",
     "license": "GPL-3.0-only",
     "authors": [
         {
