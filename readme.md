@@ -65,7 +65,7 @@ Install them if necessary.
         class ModuleGroup extends BaseModuleGroup {
         }
 
-4. Compile the application (in Windows, you `\` instead of `/`):
+4. Compile the application (in Windows, use `\` instead of `/`):
 
         vendor/bin/osmc App\App
 
@@ -95,4 +95,4 @@ The `osmphp/core` package is open-sourced software licensed under the [GPL v3](L
 
 ## Commercial License & Support
 
-In case the open source license if not a good fit for you, or if you expect being supported, [let me know](https://github.com/osmianski). 
+In case the open source license if not a good fit for you, or if you need support, [let me know](https://github.com/osmianski). 
