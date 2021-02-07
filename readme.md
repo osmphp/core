@@ -65,7 +65,7 @@ Install them if necessary.
         class ModuleGroup extends BaseModuleGroup {
         }
 
-4. Compile the application (in Windows, you "\\" instead of "/"):
+4. Compile the application (in Windows, you `\` instead of `/`):
 
         vendor/bin/osmc App\App
 
