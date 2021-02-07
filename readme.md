@@ -1,6 +1,9 @@
 * [About osmphp/core](#about-osmphpcore) 
 * [Prerequisites](#prerequisites) 
 * [Installation](#installation) 
+* [Contributing](#contributing)
+* [License](#license)
+* [Commercial License & Support](#commercial-license--support)
 
 ## About `osmphp/core`
 
