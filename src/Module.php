@@ -17,7 +17,12 @@ use Osm\Core\Attributes\Serialized;
  */
 class Module extends Object_
 {
-    public static string $app_class_name = App::class;
+    public static ?string $app_class_name = null;
+
+    /**
+     * @var string[]
+     */
+    public static array $requires = [];
 
     /**
      * @var string[]

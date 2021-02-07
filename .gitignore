@@ -5,4 +5,4 @@
 /.env*
 /.phpunit*
 /generated
-composer.lock
+/composer.lock

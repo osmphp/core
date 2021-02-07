@@ -14,6 +14,8 @@ use Osm\Runtime\Traits\Serializable;
  * @property string $path
  * @property string[] $after
  * @property string[] $traits
+ * @property ?string $app_class_name
+ * @property string[] $requires
  */
 class Module extends Object_
 {

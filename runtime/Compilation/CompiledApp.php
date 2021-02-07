@@ -172,11 +172,13 @@ class CompiledApp extends Object_
 
     /** @noinspection PhpUnused */
     protected function get_unsorted_modules(): array {
-        $modules = [];
+        $modules = []; /* @var Module[] $modules */
 
         foreach ($this->unsorted_module_groups as $moduleGroup) {
             $this->loadModules($modules, $moduleGroup);
         }
+
+        $modules = $this->unloadUnreferencedModules($modules);
 
         return $modules;
     }
@@ -226,8 +228,11 @@ class CompiledApp extends Object_
             'class_name' => $className,
             'name' => $osm_app->paths->className($className, '\\Module'),
             'path' => rtrim($path, "/\\"),
-            'after' => $className::$after,
+            'after' => array_unique(array_merge($className::$after,
+                $className::$requires)),
             'traits' => $className::$traits,
+            'requires' => $className::$requires,
+            'app_class_name' => $className::$app_class_name,
         ]);
     }
 
@@ -238,6 +243,15 @@ class CompiledApp extends Object_
      */
     protected function matches(string $class): bool {
         $appClassName = $class::$app_class_name;
+
+        if (!$appClassName) {
+            // if module doesn't explicitly specify the class of apps that
+            // should load it, then let it in for now; after all modules are
+            // loaded, such app-less modules will be checked once again if
+            // they are listed in the `requires` section of any loaded module,
+            // and if not, they will be removed
+            return true;
+        }
 
         if (!class_exists($appClassName)) {
             return false;
@@ -445,6 +459,45 @@ class CompiledApp extends Object_
             }
             $result .= $type->getName();
         }
+
+        return $result;
+    }
+
+    /**
+     * @param Module[] $modules
+     * @return Module[]
+     */
+    protected function unloadUnreferencedModules(array $modules): array {
+        $result = [];
+        $required = [];
+
+        foreach ($modules as $module) {
+            if (!$module->app_class_name) {
+                continue;
+            }
+
+            $result[$module->class_name] = $module;
+            $required = array_unique(array_merge($required, $module->requires));
+        }
+
+        do {
+            $changed = false;
+
+            foreach ($modules as $module) {
+                if (isset($result[$module->class_name])) {
+                    continue;
+                }
+
+                if (!in_array($module->class_name, $required)) {
+                    continue;
+                }
+
+                $result[$module->class_name] = $module;
+                $required = array_unique(array_merge($required, $module->requires));
+                $changed = true;
+            }
+        }
+        while ($changed);
 
         return $result;
     }
