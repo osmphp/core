@@ -4,6 +4,7 @@
 *.md diff=markdown
 
 /.github export-ignore
+/bin/test_*.php export-ignore
 /samples export-ignore
 /tests export-ignore
 .gitattributes export-ignore
