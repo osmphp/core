@@ -52,7 +52,7 @@ Install them if necessary.
 
 1. Install the `osmphp/core` Composer package:
 
-    composer require osmphp/core
+        composer require osmphp/core
 
 2. Create an application class in the `src/App.php` file (assuming that your project is configured to autoload the `App\` namespace from the `src/` directory; if it's not the case, adjust the code snippets accordingly):
 
