@@ -40,10 +40,61 @@ Install them if necessary.
 
 ## Installation
 
-**TODO**. Have a project template for empty projects, and an instruction (in the
-docs) on how to use it in an existing project, with any framework.
-
-Install the `osmphp/core` Composer package:
+1. Install the `osmphp/core` Composer package:
 
     composer require osmphp/core
 
+2. Create an app class and module group classes in the `src` directory of your project (
+   assuming that your project is configured to autoload the `App\` namespace from
+   the `src/` directory; if it's not the case, adjust the code snippets accordingly):
+
+        // src/App.php
+        <?php
+        declare(strict_types=1);
+        namespace App;
+        use Osm\Core\App as BaseApp;
+        
+        class App extends BaseApp {
+        }
+
+        // src/ModuleGroup.php
+        <?php
+        
+        declare(strict_types=1);
+        namespace App;
+        use Osm\Core\ModuleGroup as BaseModuleGroup;
+        
+        class ModuleGroup extends BaseModuleGroup {
+        }
+
+3. Compile the application (in Windows, you "\" instead of "/"):
+
+        vendor/bin/osmc App\App
+
+4. In your entry point file `public/index.php` (there may be more than one entry point file, add the following to every one of them), make sure that the code is executed in context of the application object:
+
+        <?php
+        
+        declare(strict_types=1);
+        
+        use Osm\Runtime\Apps;
+        use App\App;
+        
+        ...
+             
+        Apps::$project_path = dirname(__DIR__);
+        Apps::run(Apps::create(App::class), function() {
+            ...
+        });
+
+## Contributing
+
+Your help is really welcome, be it a reported bug, an occasional pull request, or the full fledged participation. To get started, open an issue and tell us that you want to be a part of it, and we'll get in touch.   
+
+## License
+
+The `osmphp/core` package is open-sourced software licensed under the [GPL v3](LICENSE) license.
+
+## Commercial License & Support
+
+In case the open source license if not a good fit for you, or if you expect being supported, [let me know](https://github.com/osmianski). 
