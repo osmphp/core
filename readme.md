@@ -44,11 +44,8 @@ Install them if necessary.
 
     composer require osmphp/core
 
-2. Create an app class and module group classes in the `src` directory of your project (
-   assuming that your project is configured to autoload the `App\` namespace from
-   the `src/` directory; if it's not the case, adjust the code snippets accordingly):
+2. Create an application class in the `src/App.php` file (assuming that your project is configured to autoload the `App\` namespace from the `src/` directory; if it's not the case, adjust the code snippets accordingly):
 
-        // src/App.php
         <?php
         declare(strict_types=1);
         namespace App;
@@ -57,7 +54,8 @@ Install them if necessary.
         class App extends BaseApp {
         }
 
-        // src/ModuleGroup.php
+2. Create a module group class and in the `src/ModuleGroup.php`:
+
         <?php
         
         declare(strict_types=1);
@@ -67,11 +65,11 @@ Install them if necessary.
         class ModuleGroup extends BaseModuleGroup {
         }
 
-3. Compile the application (in Windows, you "\" instead of "/"):
+4. Compile the application (in Windows, you "\" instead of "/"):
 
         vendor/bin/osmc App\App
 
-4. In your entry point file `public/index.php` (there may be more than one entry point file, add the following to every one of them), make sure that the code is executed in context of the application object:
+5. In your entry point file `public/index.php` (there may be more than one entry point file, add the following to every one of them), make sure that the code is executed in context of the application object:
 
         <?php
         
