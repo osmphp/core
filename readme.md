@@ -8,6 +8,8 @@
 * [About osmphp/core](#about-osmphpcore) 
 * [Prerequisites](#prerequisites) 
 * [Installation](#installation) 
+* [Getting Started](#getting-started)
+* [Using The Library](#using-the-library)
 * [Contributing](#contributing)
 * [License](#license)
 * [Commercial License & Support](#commercial-license--support)
@@ -50,11 +52,15 @@ Install them if necessary.
 
 ## Installation
 
-1. Install the `osmphp/core` Composer package:
+Install the `osmphp/core` Composer package:
 
         composer require osmphp/core
 
-2. Create an application class in the `src/App.php` file (assuming that your project is configured to autoload the `App\` namespace from the `src/` directory; if it's not the case, adjust the code snippets accordingly):
+## Getting Started 
+
+Prepare the project for using the library as described below. In the future, this package will come preinstalled with a project template, and you will not have to write this boilerplate code.
+
+1. Create an application class in the `src/App.php` file (assuming that your project is configured to autoload the `App\` namespace from the `src/` directory; if it's not the case, adjust the code snippets accordingly):
 
         <?php
         declare(strict_types=1);
@@ -75,11 +81,11 @@ Install them if necessary.
         class ModuleGroup extends BaseModuleGroup {
         }
 
-4. Compile the application (in Windows, use `\` instead of `/`):
+3. Compile the application (in Windows, use `\` instead of `/`):
 
         vendor/bin/osmc App\App
 
-5. In your entry point file `public/index.php` (there may be more than one entry point file, add the following to every one of them), make sure that the code is executed in context of the application object:
+4. In your entry point file `public/index.php` (there may be more than one entry point file, add the following to every one of them), make sure that the code is executed in context of the application object:
 
         <?php
         
@@ -94,6 +100,10 @@ Install them if necessary.
         Apps::run(Apps::create(App::class), function() {
             ...
         });
+
+## Using The Library
+
+Documentation is a work in progress. This section will be updated once it is ready.
 
 ## Contributing
 
