@@ -135,7 +135,7 @@ class Compiler extends App
 
     }
 
-    protected function generateClasses() {
+    public function generateClasses() {
         $output = "<?php\n\n";
 
         foreach ($this->app->classes as $class) {
@@ -145,6 +145,10 @@ class Compiler extends App
         }
 
         file_put_contents(make_dir_for($this->paths->classes_php), $output);
+
+        /** @noinspection PhpIncludeInspection */
+        require_once $this->paths->classes_php;
+
     }
 
     #[Runs(Generator::class)]

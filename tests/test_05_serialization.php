@@ -22,7 +22,10 @@ class test_05_serialization extends TestCase
         // CompilerApp::serialize() calls are done in the context
         // of the global compiler object
         Apps::run($compiler, function(Compiler $compiler) {
-            // WHEN you serialize the app object
+            // WHEN you compile the app
+            $compiler->generateClasses();
+
+            // AND serialize the app object
             $serialized = null;
 
             // serialize and underlying Object::__sleep() calls are done in

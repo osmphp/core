@@ -19,5 +19,8 @@ class Module extends BaseModule
 
     public static array $traits = [
         Some::class => Traits\DynamicTrait::class,
+
+        // testing that traits can be applied to the application class
+        App::class => Traits\AppTrait::class,
     ];
 }

@@ -16,7 +16,12 @@ class Object_ extends BaseObject
     protected function get___class(): Class_ {
         global $osm_app; /* @var App $osm_app */
 
-        return $osm_app->classes[$this::class];
+        $className = $this::class;
+        if (str_starts_with($className, $osm_app->name)) {
+            $className = substr($className, strlen($osm_app->name) + 1);
+        }
+
+        return $osm_app->classes[$className];
     }
 
     protected static function createInstance(string $className, array $data): static {
