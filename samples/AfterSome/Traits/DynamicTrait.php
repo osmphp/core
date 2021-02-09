@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Osm\Core\Samples\AfterSome\Traits;
 
+use Osm\Core\App;
 use Osm\Core\Samples\Some\Some;
 
 /**
  * @property int $width
  * @property int $area_size
  * @property bool $round_pi
+ * @property App $app
  */
 trait DynamicTrait
 {

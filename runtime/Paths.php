@@ -23,6 +23,7 @@ use Osm\Runtime\Compilation\Compiler;
  *      (serialized application object, classes with applied traits,
  *      and hint classes) are created. By default, {$project_path}/generated
  * @property string $classes_php
+ * @property string $hints_php
  * @property string $app_ser
  * @property string $compiler
  * @property string $compiler_locks
@@ -53,6 +54,11 @@ class Paths extends Object_
     /** @noinspection PhpUnused */
     protected function get_classes_php(): string {
         return "{$this->generated}/{$this->app_name}/classes.php";
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_hints_php(): string {
+        return "{$this->generated}/hints.php";
     }
 
     /** @noinspection PhpUnused */

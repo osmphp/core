@@ -60,9 +60,18 @@ final class Apps
         });
     }
 
+    public static function hint(string $appClassName) {
+        $compiler = Compiler::new(['app_class_name' => $appClassName]);
+
+        self::run($compiler, function(Compiler $compiler) {
+            $compiler->hint();
+        });
+    }
+
     public static function paths(string $appClassName): Paths {
         $new = self::$paths_class_name . "::new";
 
         return $new(['app_class_name' => $appClassName]);
     }
+
 }

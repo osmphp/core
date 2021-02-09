@@ -166,4 +166,23 @@ class Compiler extends App
     protected function get_php_parser(): Parser {
         return (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
     }
+
+    /** @noinspection PhpUnused */
+    public function hint() {
+        $output = "<?php\n\n";
+
+        foreach ($this->app->classes as $class) {
+            if ($class->generated_name) {
+                $output .= $this->generateHint($class);
+            }
+        }
+
+        file_put_contents(make_dir_for($this->paths->hints_php), $output);
+    }
+
+    #[Runs(Hinter::class)]
+    protected function generateHint(Class_ $class): string {
+        return Hinter::new(['class' => $class])->hint();
+    }
+
 }
