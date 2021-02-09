@@ -83,7 +83,7 @@ Prepare the project for using the library as described below. In the future, thi
 
 3. Compile the application (in Windows, use `\` instead of `/`):
 
-        vendor/bin/osmc App\App
+        php vendor/osmphp/core/bin/compile.php App\App
 
 4. In your entry point file `public/index.php` (there may be more than one entry point file, add the following to every one of them), make sure that the code is executed in context of the application object:
 
