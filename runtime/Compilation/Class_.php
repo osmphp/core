@@ -89,9 +89,10 @@ class Class_ extends Object_
         $traits = [];
 
         foreach ($osm_app->app->modules as $module) {
-            if (isset($module->traits[$this->name])) {
-                $traits[$module->traits[$this->name]] =
-                    $osm_app->app->classes[$module->traits[$this->name]];
+            foreach ($module->traits as $className => $traitName) {
+                if (is_a($this->name, $className, true)) {
+                    $traits[$traitName] = $osm_app->app->classes[$traitName];
+                }
             }
         }
 

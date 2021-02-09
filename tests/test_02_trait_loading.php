@@ -44,4 +44,18 @@ class test_02_trait_loading extends TestCase
             $this->assertEquals(DynamicTrait::class, $trait->name);
         });
     }
+
+    public function test_inherited_trait() {
+        // GIVEN a compiler configured to compile a sample app
+        $compiler = Compiler::new(['app_class_name' => App::class]);
+
+        Apps::run($compiler, function(Compiler $compiler) {
+            // WHEN you access a static trait,
+            // AND it is automatically loaded
+            $trait = $compiler->app->classes[Other::class]->traits[DynamicTrait::class];
+
+            // THEN its information can be found in its properties
+            $this->assertEquals(DynamicTrait::class, $trait->name);
+        });
+    }
 }
