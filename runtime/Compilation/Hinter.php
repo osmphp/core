@@ -15,7 +15,8 @@ class Hinter extends Object_
 {
     public function hint(): string {
         $properties = $this->propertyHints();
-        if (!$properties) {
+        $methods = $this->methodHints();
+        if (!$properties && !$methods) {
             return '';
         }
 
@@ -25,7 +26,8 @@ namespace {$this->class->namespace} {
     /**
 {$properties}
      */
-    class {$this->class->short_name} {
+    abstract class {$this->class->short_name} {
+{$methods}
     }
 }
 EOT;
@@ -50,6 +52,26 @@ EOT;
 EOT;
             }
         }
+
+        return $output;
+    }
+
+    protected function methodHints(): string {
+        $output = '';
+
+         foreach ($this->class->actual_dynamic_traits as $trait) {
+             foreach ($trait->methods as $method) {
+//                 if ($method->access != 'public') {
+//                     continue;
+//                 }
+
+                $output .= <<<EOT
+        /* @see \\{$trait->name}::{$method->name}() */
+        abstract {$method->access} function {$method->name} ({$method->parameters}){$method->returns}; 
+
+EOT;
+             }
+         }
 
         return $output;
     }
