@@ -21,11 +21,11 @@ class Hinter extends Object_
 
         return <<<EOT
 
-namespace Hints\\{$this->class->namespace} {
+namespace {$this->class->namespace} {
     /**
 {$properties}
      */
-    class {$this->class->short_name} extends \\{$this->class->name}{
+    class {$this->class->short_name} {
     }
 }
 EOT;
@@ -34,7 +34,7 @@ EOT;
     protected function propertyHints(): string {
         $output = '';
 
-        foreach ($this->class->dynamic_traits as $trait) {
+        foreach ($this->class->actual_dynamic_traits as $trait) {
             foreach ($trait->properties as $property) {
                 $type = $property->type
                     ? (class_exists($property->type)

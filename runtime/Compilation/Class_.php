@@ -24,6 +24,7 @@ use PhpParser\Node;
  * @property \ReflectionClass $reflection
  * @property Class_ $parent_class
  * @property Class_[] $static_traits
+ * @property Class_[] $actual_dynamic_traits
  * @property Class_[] $dynamic_traits
  * @property Class_[] $traits
  * @property Property[] $inherited_properties
@@ -76,6 +77,23 @@ class Class_ extends Object_
             if (isset($osm_app->app->classes[$trait->getName()])) {
                 $traits[$trait->getName()] =
                     $osm_app->app->classes[$trait->getName()];
+            }
+        }
+
+        return $traits;
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_actual_dynamic_traits(): array {
+        global $osm_app; /* @var Compiler $osm_app */
+
+        $traits = [];
+
+        foreach ($osm_app->app->modules as $module) {
+            foreach ($module->traits as $className => $traitName) {
+                if ($this->name == $className) {
+                    $traits[$traitName] = $osm_app->app->classes[$traitName];
+                }
             }
         }
 
