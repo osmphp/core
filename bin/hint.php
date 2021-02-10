@@ -7,4 +7,4 @@ use Osm\Runtime\Apps;
 require 'vendor/autoload.php';
 
 Apps::$project_path = getcwd();
-Apps::hint($argv[1]);
+Apps::hint(ltrim($argv[1], '\\'));
