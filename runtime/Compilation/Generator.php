@@ -4,6 +4,7 @@
 namespace Osm\Runtime\Compilation;
 
 use Osm\Core\Attributes\Expected;
+use Osm\Runtime\Compilation\Methods\Merged as MergedMethod;
 use Osm\Runtime\Object_;
 
 /**
@@ -57,14 +58,22 @@ EOT;
         /* @var string[] $defaultClasses */
         $defaultClasses = [];
         foreach ($this->class->methods as $method) {
-            foreach ($method->around as $around) {
-                if (isset($defaultClasses[$around->name])) {
-                    $defaultClassName = $defaultClasses[$around->name];
-                    $output .= "\n            \\{$defaultClassName}::{$around->name} insteadof \\{$around->class->name};";
+            if (!($method instanceof MergedMethod)) {
+                continue;
+            }
+
+            foreach (array_reverse($method->methods) as $traitMethod) {
+                if (!$traitMethod->class->reflection->isTrait()) {
+                    continue;
                 }
-                else {
-                    $defaultClasses[$around->name] = $around->class->name;
+
+                if (!isset($defaultClasses[$traitMethod->name])) {
+                    $defaultClasses[$traitMethod->name] = $traitMethod->class->name;
+                    continue;
                 }
+
+                $defaultClassName = $defaultClasses[$traitMethod->name];
+                $output .= "\n            \\{$defaultClassName}::{$traitMethod->name} insteadof \\{$traitMethod->class->name};";
             }
         }
 

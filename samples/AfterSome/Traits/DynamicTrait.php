@@ -31,4 +31,8 @@ trait DynamicTrait
     protected function around_get_pi(callable $proceed): float {
         return $this->round_pi ? 3.0 : $proceed();
     }
+
+    public function newMethod(): bool {
+        return false;
+    }
 }

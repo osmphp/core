@@ -6,6 +6,7 @@ namespace Osm\Core\Samples\AfterSome;
 
 use Osm\Core\Module as BaseModule;
 use Osm\Core\Samples\App;
+use Osm\Core\Samples\Some\Other;
 use Osm\Core\Samples\Some\Some;
 
 /** @noinspection PhpUnused */
@@ -19,6 +20,7 @@ class Module extends BaseModule
 
     public static array $traits = [
         Some::class => Traits\DynamicTrait::class,
+        Other::class => Traits\OtherTrait::class,
 
         // testing that traits can be applied to the application class
         App::class => Traits\AppTrait::class,

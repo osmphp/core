@@ -308,15 +308,28 @@ class Class_ extends Object_
 
     protected function mergeMethod(?Method $base, Method $derived): Method {
         if (!$base) {
-            return $derived;
+            return MergedMethod::new([
+                'name' => $derived->name,
+                'class' => $this,
+                'methods' => [$derived],
+            ]);
+        }
+
+        $methods = $base instanceof MergedMethod ? $base->methods : [$base];
+
+        foreach ($methods as $method) {
+            if ($method->reflection->getFileName() ==
+                $derived->reflection->getFileName())
+            {
+                return $base;
+            }
+
         }
 
         $base = MergedMethod::new([
             'name' => $base->name,
             'class' => $this,
-            'methods' => $base instanceof MergedMethod ?
-                $base->methods :
-                [$base],
+            'methods' => $methods,
         ]);
 
         $base->methods[] = $derived;
