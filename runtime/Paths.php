@@ -82,6 +82,8 @@ class Paths extends Object_
                 mb_strlen($className) - mb_strlen($suffix));
         }
 
-        return str_replace('\\', '_', $className);
+        return mb_strpos($className, '\\') !== false
+            ? str_replace('\\', '_', $className)
+            : $className . '_';
     }
 }

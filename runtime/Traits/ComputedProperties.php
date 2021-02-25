@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Traits;
 
-use Osm\Runtime\Exceptions\Required;
+use Osm\Core\Exceptions\Required;
 
 trait ComputedProperties
 {
