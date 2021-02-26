@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Osm\Core\Tests;
 
+use Osm\Core\Attributes\Regression;
+use Osm\Core\Object_;
 use Osm\Core\Samples\App;
 use Osm\Core\Samples\Attributes\Marker;
 use Osm\Core\Samples\Attributes\Repeatable;
@@ -86,6 +88,28 @@ class test_04_method_loading extends TestCase
 
             // THEN their information can be found in its properties
             $this->assertCount(1, $get_pi->around);
+        });
+    }
+
+    #[Regression]
+    public function test_object_around_advice() {
+        // GIVEN a compiler configured to compile a sample app
+        // AND `\Osm\Core\Samples\Some\Traits\ObjectTrait::around_default()`
+        // is applicable to every class derived from Object_
+        $compiler = Compiler::new(['app_class_name' => App::class]);
+
+        Apps::run($compiler, function(Compiler $compiler) {
+            foreach ($compiler->app->classes as $class) {
+                if (!is_a($class->name, Object_::class, true)) {
+                    continue;
+                }
+
+                // WHEN you access a default() method in a class
+                $default = $class->methods['default'];
+
+                // THEN it should have exactly one advice
+                $this->assertCount(1, $default->around);
+            }
         });
     }
 }
