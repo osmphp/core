@@ -13,7 +13,7 @@ use Osm\Runtime\Apps;
 use Osm\Runtime\Compilation\Compiler;
 use PHPUnit\Framework\TestCase;
 
-class test_05_serialization extends TestCase
+class test_06_serialization extends TestCase
 {
     public function test_app_serialization() {
         // GIVEN a compiler configured to compile a sample app

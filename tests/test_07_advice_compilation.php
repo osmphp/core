@@ -9,7 +9,7 @@ use Osm\Core\Samples\Some\Some;
 use Osm\Runtime\Apps;
 use PHPUnit\Framework\TestCase;
 
-class test_06_advice_compilation extends TestCase
+class test_07_advice_compilation extends TestCase
 {
     public function test_that_applied_advice_gets_called() {
         // GIVEN a compiled sample app

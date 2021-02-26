@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Osm\Core\Tests;
 
 use Osm\Core\Samples\App;
-use Osm\Core\Samples\ModuleGroup;
 use Osm\Core\Samples\Some\Module;
 use Osm\Runtime\Compilation\Compiler;
 use Osm\Runtime\Apps;
@@ -29,25 +28,6 @@ class test_01_app_loading extends TestCase
                 $package->serialized_class_name);
             $this->assertNotFalse(array_search('ext-mbstring',
                 $package->after));
-        });
-    }
-
-    public function test_module_group_loading() {
-        // GIVEN a compiler configured to compile a sample app
-        $compiler = Compiler::new(['app_class_name' => App::class]);
-
-        Apps::run($compiler, function(Compiler $compiler) {
-            // WHEN you access a module group,
-            // AND it is automatically loaded
-            $moduleGroup = $compiler->app->module_groups[ModuleGroup::class];
-
-            // THEN its information can be found in its properties
-            $this->assertEquals('samples', $moduleGroup->path);
-            $this->assertEquals(ModuleGroup::class,
-                $moduleGroup->class_name);
-            $this->assertEquals(ModuleGroup::class,
-                $moduleGroup->serialized_class_name);
-            $this->assertEmpty($moduleGroup->after);
         });
     }
 

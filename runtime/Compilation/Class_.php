@@ -243,7 +243,11 @@ class Class_ extends Object_
 
     /** @noinspection PhpUnused */
     protected function get_methods() : array {
-        $methods = $this->parent_class?->methods ?? [];
+        $methods = [];
+
+        foreach ($this->parent_class?->methods ?? [] as $name => $method) {
+            $methods[$name] = $this->mergeMethod(null, $method);
+        }
 
         foreach ($this->traits as $trait) {
             foreach ($trait->methods as $name => $method) {
@@ -307,17 +311,21 @@ class Class_ extends Object_
     }
 
     protected function mergeMethod(?Method $base, Method $derived): Method {
+        $derivedMethods = $derived instanceof MergedMethod
+            ? $derived->methods
+            : [$derived];
+
         if (!$base) {
             return MergedMethod::new([
                 'name' => $derived->name,
                 'class' => $this,
-                'methods' => [$derived],
+                'methods' => $derivedMethods,
             ]);
         }
 
-        $methods = $base instanceof MergedMethod ? $base->methods : [$base];
+        $baseMethods = $base instanceof MergedMethod ? $base->methods : [$base];
 
-        foreach ($methods as $method) {
+        foreach ($baseMethods as $method) {
             if ($method->reflection->getFileName() ==
                 $derived->reflection->getFileName())
             {
@@ -329,7 +337,7 @@ class Class_ extends Object_
         $base = MergedMethod::new([
             'name' => $base->name,
             'class' => $this,
-            'methods' => $methods,
+            'methods' => $baseMethods,
         ]);
 
         $base->methods[] = $derived;

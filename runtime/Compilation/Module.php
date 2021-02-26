@@ -8,7 +8,7 @@ use Osm\Runtime\Object_;
 use Osm\Runtime\Traits\Serializable;
 
 /**
- * @property string $module_group_class_name
+ * @property string $package_name
  * @property string $class_name
  * @property string $name
  * @property string $path

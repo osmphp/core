@@ -14,7 +14,7 @@ use Osm\Runtime\Compilation\Compiler;
  *
  * Computed:
  *
- * @property string $project
+ * @property string $project Absolute path to the product directory
  * @property string $app_name
  *
  * Computed paths:

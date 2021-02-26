@@ -13,7 +13,7 @@ use Osm\Runtime\Apps;
 use Osm\Runtime\Compilation\Compiler;
 use PHPUnit\Framework\TestCase;
 
-class test_03_property_loading extends TestCase
+class test_04_property_loading extends TestCase
 {
     public function test_doc_comment_property() {
         // GIVEN a compiler configured to compile a sample app

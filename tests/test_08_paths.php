@@ -8,7 +8,7 @@ use Osm\Core\Samples\App;
 use Osm\Runtime\Apps;
 use PHPUnit\Framework\TestCase;
 
-class test_07_paths extends TestCase
+class test_08_paths extends TestCase
 {
     public function test_that_applied_advice_gets_called() {
         // GIVEN a compiled sample app

@@ -13,6 +13,7 @@ use Osm\Runtime\Traits\Serializable;
  * @property string $path
  * @property \stdClass|PackageHint $json
  * @property string[] $after
+ * @property string[] $source_roots
  */
 class Package extends Object_
 {

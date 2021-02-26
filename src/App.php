@@ -15,7 +15,7 @@ use Osm\Runtime\Apps;
  * @property string $name #[Serialized]
  * @property Package[] $packages #[Serialized]
  * @property ModuleGroup[] $module_groups #[Serialized]
- * @property Module[] $modules #[Serialized]
+ * @property BaseModule[] $modules #[Serialized]
  * @property Class_[] $classes #[Serialized]
  * @property Paths $paths
  */

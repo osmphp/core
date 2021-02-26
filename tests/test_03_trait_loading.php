@@ -15,7 +15,7 @@ use Osm\Runtime\Apps;
 use Osm\Runtime\Compilation\Compiler;
 use PHPUnit\Framework\TestCase;
 
-class test_02_trait_loading extends TestCase
+class test_03_trait_loading extends TestCase
 {
     public function test_static_trait() {
         // GIVEN a compiler configured to compile a sample app

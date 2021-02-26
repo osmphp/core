@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Osm\Runtime\Compilation;
 
 use Osm\Core\App;
+use Osm\Core\BaseModule;
 use Osm\Runtime\Exceptions\CircularDependency;
 use Osm\Runtime\Hints\ComposerLock;
 use Osm\Runtime\Hints\PackageHint;
@@ -22,10 +23,8 @@ use Osm\Runtime\Traits\Serializable;
  * @property \stdClass|ComposerLock $composer_lock
  * @property bool $load_dev_sections
  * @property Package[] $unsorted_packages
- * @property ModuleGroup[] $unsorted_module_groups
  * @property Module[] $unsorted_modules
  * @property Package[] $packages
- * @property ModuleGroup[] $module_groups
  * @property Module[] $modules
  * @property Class_[] $classes
  */
@@ -98,75 +97,27 @@ class CompiledApp extends Object_
         }
     }
 
-    protected function loadPackage(\stdClass|PackageHint $json, bool $root = false): Package {
+    protected function loadPackage(\stdClass|PackageHint $json,
+        bool $root = false): Package
+    {
+        $require = array_keys((array)($json->require ?? []));
+        if ($this->load_dev_sections) {
+            $require = array_merge($require,
+                array_keys((array)($json->{'require-dev'} ?? [])));
+        }
+
+        $sourceRoots = (array)($json->autoload?->{"psr-4"} ?? []);
+        if ($this->load_dev_sections) {
+            $sourceRoots = array_merge($sourceRoots,
+                (array)($json->{'autoload-dev'}?->{"psr-4"} ?? []));
+
+        }
         return Package::new([
             'name' => $json->name ?? '',
             'path' => $root ? '' : "vendor/{$json->name}",
             'json' => $json,
-            'after' => array_merge(
-                array_keys((array)($json->require ?? [])),
-                $this->load_dev_sections
-                    ? array_keys((array)($json->{'require-dev'} ?? []))
-                    : [],
-            ),
-        ]);
-    }
-
-    /** @noinspection PhpUnused */
-    protected function get_unsorted_module_groups(): array {
-        $moduleGroups = [];
-
-        foreach ($this->unsorted_packages as $package) {
-            $this->loadModuleGroups($moduleGroups, $package, 'autoload');
-
-            if ($this->load_dev_sections) {
-                $this->loadModuleGroups($moduleGroups, $package, 'autoload-dev');
-            }
-        }
-
-        return $moduleGroups;
-    }
-
-    protected function loadModuleGroups(array &$moduleGroups, Package $package,
-        string $section): void
-    {
-        foreach ($package->json->$section->{"psr-4"} ?? [] as $namespace => $path) {
-            if ($package->path) {
-                $path = "{$package->path}/{$path}";
-            }
-
-            $this->loadModuleGroup($moduleGroups, $package, $namespace, $path);
-        }
-    }
-
-    protected function loadModuleGroup(array &$moduleGroups,
-        Package $package, string $namespace, string $path): void
-    {
-        global $osm_app; /* @var Compiler $osm_app */
-
-        $absolutePath = rtrim("{$osm_app->paths->project}/{$path}", "/\\");
-        $filename = "{$absolutePath}/ModuleGroup.php";
-        $className = "{$namespace}ModuleGroup";
-
-        if (!is_file($filename)) {
-            return; // there is no ModuleGroup class
-        }
-
-        if (!is_a($className, \Osm\Core\ModuleGroup::class, true)) {
-            return;
-        }
-
-        if (!$this->matches($className)) {
-            return;
-        }
-
-        $moduleGroups[$className] = ModuleGroup::new([
-            'package_name' => $package->name,
-            'class_name' => $className,
-            'name' => $osm_app->paths->className($className, '\\ModuleGroup'),
-            'path' => rtrim($path, "/\\"),
-            'depth' => $className::$depth,
-            'after' => $className::$after,
+            'after' => $require,
+            'source_roots' => $sourceRoots,
         ]);
     }
 
@@ -174,8 +125,13 @@ class CompiledApp extends Object_
     protected function get_unsorted_modules(): array {
         $modules = []; /* @var Module[] $modules */
 
-        foreach ($this->unsorted_module_groups as $moduleGroup) {
-            $this->loadModules($modules, $moduleGroup);
+        foreach ($this->unsorted_packages as $package) {
+            foreach ($package->source_roots as $namespace => $path) {
+                for ($depth = 0; $depth < 3; $depth++) {
+                    $this->loadModules($modules, $package, $namespace,
+                        $path, $depth);
+                }
+            }
         }
 
         $modules = $this->unloadUnreferencedModules($modules);
@@ -183,26 +139,33 @@ class CompiledApp extends Object_
         return $modules;
     }
 
-
-    protected function loadModules(array &$modules, ModuleGroup $moduleGroup): void {
+    protected function loadModules(array &$modules, Package $package,
+        string $sourceRootNamespace, string $sourceRootPath, int $depth): void
+    {
         global $osm_app; /* @var Compiler $osm_app */
 
-        $pattern = "{$osm_app->paths->project}/{$moduleGroup->path}" .
-            str_repeat('/*', $moduleGroup->depth);
+        $pattern = $osm_app->paths->project;
+        if ($package->path) {
+            $pattern .= '/' . $package->path;
+        }
+        if ($sourceRootPath) {
+            $pattern .= '/' . rtrim($sourceRootPath, "/\\");
+        }
+        $pattern .= str_repeat('/*', $depth);
 
         foreach (glob($pattern, GLOB_ONLYDIR | GLOB_MARK) as $path) {
             $path = ltrim(mb_substr($path, mb_strlen($osm_app->paths->project)),
                 "/\\");
-            $namespace = $moduleGroup->namespace . '\\' .
+            $namespace = $sourceRootNamespace .
                 str_replace('/', '\\', ltrim(
-                    mb_substr($path, mb_strlen($moduleGroup->path)),
+                    mb_substr($path, mb_strlen($sourceRootPath)),
                     "/\\"));
 
-            $this->loadModule($modules, $moduleGroup, $namespace, $path);
+            $this->loadModule($modules, $package, $namespace, $path);
         }
     }
 
-    protected function loadModule(array &$modules, ModuleGroup $moduleGroup,
+    protected function loadModule(array &$modules, Package $package,
         string $namespace, string $path): void
     {
         global $osm_app; /* @var Compiler $osm_app */
@@ -215,7 +178,7 @@ class CompiledApp extends Object_
             return; // there is no Module class
         }
 
-        if (!is_a($className, \Osm\Core\Module::class, true)) {
+        if (!is_a($className, BaseModule::class, true)) {
             return;
         }
 
@@ -224,7 +187,7 @@ class CompiledApp extends Object_
         }
 
         $modules[$className] = Module::new([
-            'module_group_class_name' => $moduleGroup->class_name,
+            'package_name' => $package->name,
             'class_name' => $className,
             'name' => $osm_app->paths->className($className, '\\Module'),
             'path' => rtrim($path, "/\\"),
@@ -237,7 +200,7 @@ class CompiledApp extends Object_
     }
 
     /**
-     * @param string|\Osm\Core\ModuleGroup|\Osm\Core\Module $class
+     * @param string|BaseModule $class
      * @return bool
      * @noinspection PhpDocSignatureInspection
      */
@@ -264,9 +227,9 @@ class CompiledApp extends Object_
     protected function get_packages(): array {
         $packages = [];
 
-        foreach ($this->unsorted_module_groups as $moduleGroup) {
-            $packages[$moduleGroup->package_name] =
-                $this->unsorted_packages[$moduleGroup->package_name];
+        foreach ($this->unsorted_modules as $module) {
+            $packages[$module->package_name] =
+                $this->unsorted_packages[$module->package_name];
         }
 
         return $this->sort($packages, 'Packages', function($positions) {
@@ -277,26 +240,13 @@ class CompiledApp extends Object_
     }
 
     /** @noinspection PhpUnused */
-    protected function get_module_groups(): array {
-        return $this->sort($this->unsorted_module_groups, 'Module groups', function($positions) {
-            $parentKeys = array_flip(array_keys($this->packages));
-
-            return function(ModuleGroup $a, ModuleGroup $b) use ($positions, $parentKeys) {
-                return ($result = $parentKeys[$a->package_name] <=> $parentKeys[$b->package_name]) != 0
-                    ? $result
-                    : $positions[$a->class_name] <=> $positions[$b->class_name];
-            };
-        });
-    }
-
-    /** @noinspection PhpUnused */
     protected function get_modules(): array {
         return $this->sort($this->unsorted_modules, 'Modules', function($positions) {
-            $parentKeys = array_flip(array_keys($this->module_groups));
+            $parentKeys = array_flip(array_keys($this->packages));
 
             return function(Module $a, Module $b) use ($positions, $parentKeys) {
-                return ($result = $parentKeys[$a->module_group_class_name]
-                        <=> $parentKeys[$b->module_group_class_name]) != 0
+                return ($result = $parentKeys[$a->package_name]
+                        <=> $parentKeys[$b->package_name]) != 0
                     ? $result
                     : $positions[$a->class_name] <=> $positions[$b->class_name];
             };
@@ -342,7 +292,7 @@ class CompiledApp extends Object_
         return null;
     }
 
-    protected function hasUnresolvedDependency(Package|ModuleGroup|Module $item,
+    protected function hasUnresolvedDependency(Package|Module $item,
         array $items, array $positions): bool
     {
         foreach ($item->after as $key) {
@@ -380,20 +330,27 @@ class CompiledApp extends Object_
     protected function get_classes(): array {
         $classes = [];
 
-        foreach ($this->module_groups as $moduleGroup) {
-            $this->loadClasses($classes, $moduleGroup);
+        foreach ($this->modules as $module) {
+            $this->loadModuleClasses($classes, $module);
+            $this->loadExternalClasses($classes, $module);
+        }
+
+        foreach ($this->packages as $package) {
+            foreach ($package->source_roots as $namespace => $path) {
+                $this->loadAppClass($classes, $package, $namespace, $path);
+            }
         }
 
         return $classes;
     }
 
-    protected function loadClasses(array &$classes, ModuleGroup $moduleGroup,
+    protected function loadModuleClasses(array &$classes, Module $module,
         string $path = '')
     {
        global $osm_app; /* @var Compiler $osm_app */
 
-       $moduleGroupPath = "{$osm_app->paths->project}/{$moduleGroup->path}";
-       $absolutePath = $path ? "{$moduleGroupPath}/{$path}" : $moduleGroupPath;
+       $modulePath = "{$osm_app->paths->project}/{$module->path}";
+       $absolutePath = $path ? "{$modulePath}/{$path}" : $modulePath;
 
        foreach (new \DirectoryIterator($absolutePath) as $fileInfo) {
             if ($fileInfo->isDot()) {
@@ -405,7 +362,7 @@ class CompiledApp extends Object_
             }
 
             if ($fileInfo->isDir()) {
-                $this->loadClasses($classes, $moduleGroup,
+                $this->loadModuleClasses($classes, $module,
                     ($path ? "{$path}/" : '') . $fileInfo->getFilename());
                 continue;
             }
@@ -414,7 +371,8 @@ class CompiledApp extends Object_
                 continue;
             }
 
-            $className = $moduleGroup->namespace . '\\' .
+            $className = mb_substr($module->class_name, 0,
+                mb_strlen($module->class_name) - mb_strlen('Module')) .
                 str_replace('/', '\\',
                     ($path ? "{$path}/" : '') .
                     pathinfo($fileInfo->getFilename(), PATHINFO_FILENAME)
@@ -423,6 +381,42 @@ class CompiledApp extends Object_
             $classes[$className] = Class_::new([
                 'name' => $className,
                 'filename' => "{$absolutePath}/{$fileInfo->getFilename()}",
+            ]);
+        }
+    }
+
+    protected function loadExternalClasses(array &$result, Module $module): void {
+        /* @var string|BaseModule $moduleClassName */
+        $moduleClassName = $module->class_name;
+
+        foreach ($moduleClassName::$classes as $className) {
+            $result[$className] = Class_::new([
+                'name' => $className,
+                'filename' => (new \ReflectionClass($className))->getFileName(),
+            ]);
+        }
+    }
+
+    protected function loadAppClass(array &$classes, Package $package,
+        string $sourceRootNamespace, string $sourceRootPath): void
+    {
+        global $osm_app; /* @var Compiler $osm_app */
+
+        $path = $osm_app->paths->project;
+        if ($package->path) {
+            $path .= '/' . $package->path;
+        }
+        if ($sourceRootPath) {
+            $path .= '/' . rtrim($sourceRootPath, "/\\");
+        }
+        $path .= "/App.php";
+
+        if (is_file($path)) {
+            $className = "{$sourceRootNamespace}App";
+
+            $classes[$className] = Class_::new([
+                'name' => $className,
+                'filename' => $path,
             ]);
         }
     }

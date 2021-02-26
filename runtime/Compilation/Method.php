@@ -37,22 +37,15 @@ class Method extends Object_
     protected function get_around(): array {
         $around = [];
 
-        // walk through class hierarchy , take all dynamic traits implementing
-        // the around advice for this method
-
-        for ($class = $this->class; $class; $class = $class->parent_class) {
-            $classAdvices = [];
-
-            foreach ($class->dynamic_traits as $trait) {
-                if (isset($trait->methods["around_{$this->name}"])) {
-                    $classAdvices[] = $trait->methods["around_{$this->name}"];
-                }
+        foreach ($this->class->dynamic_traits as $trait) {
+            if (isset($trait->methods["around_{$this->name}"])) {
+                $method = $trait->methods["around_{$this->name}"];
+                $key = "{$method->reflection->getDeclaringClass()}::{$method->name}";
+                $around[$key] = $method;
             }
-
-            $around = array_merge($classAdvices, $around);
         }
 
-        return $around;
+        return array_values($around);
     }
 
     /** @noinspection PhpUnused */

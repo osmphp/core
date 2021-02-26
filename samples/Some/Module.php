@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Core\Samples\Some;
 
-use Osm\Core\Module as BaseModule;
+use Osm\Core\BaseModule;
 use Osm\Core\Object_;
 
 /** @noinspection PhpUnused */

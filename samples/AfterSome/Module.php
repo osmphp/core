@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Core\Samples\AfterSome;
 
-use Osm\Core\Module as BaseModule;
+use Osm\Core\BaseModule;
 use Osm\Core\Samples\App;
 use Osm\Core\Samples\Some\Other;
 use Osm\Core\Samples\Some\Some;

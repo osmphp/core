@@ -15,7 +15,7 @@ use Osm\Runtime\Apps;
 use Osm\Runtime\Compilation\Compiler;
 use PHPUnit\Framework\TestCase;
 
-class test_04_method_loading extends TestCase
+class test_05_method_loading extends TestCase
 {
     public function test_method_reflection() {
         // GIVEN a compiler configured to compile a sample app
