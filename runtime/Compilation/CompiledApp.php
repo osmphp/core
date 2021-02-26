@@ -144,24 +144,24 @@ class CompiledApp extends Object_
     {
         global $osm_app; /* @var Compiler $osm_app */
 
-        $pattern = $osm_app->paths->project;
+        $absolutePath = $osm_app->paths->project;
         if ($package->path) {
-            $pattern .= '/' . $package->path;
+            $absolutePath .= '/' . $package->path;
         }
         if ($sourceRootPath) {
-            $pattern .= '/' . rtrim($sourceRootPath, "/\\");
+            $absolutePath .= '/' . rtrim($sourceRootPath, "/\\");
         }
-        $pattern .= str_repeat('/*', $depth);
+        $pattern = $absolutePath . str_repeat('/*', $depth);
 
         foreach (glob($pattern, GLOB_ONLYDIR | GLOB_MARK) as $path) {
-            $path = ltrim(mb_substr($path, mb_strlen($osm_app->paths->project)),
+            $relativePath = ltrim(mb_substr($path, mb_strlen($osm_app->paths->project)),
                 "/\\");
             $namespace = $sourceRootNamespace .
                 str_replace('/', '\\', ltrim(
-                    mb_substr($path, mb_strlen($sourceRootPath)),
+                    mb_substr($path, mb_strlen($absolutePath)),
                     "/\\"));
 
-            $this->loadModule($modules, $package, $namespace, $path);
+            $this->loadModule($modules, $package, $namespace, $relativePath);
         }
     }
 
