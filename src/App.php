@@ -14,7 +14,6 @@ use Osm\Runtime\Apps;
  * @property string $class_name #[Serialized]
  * @property string $name #[Serialized]
  * @property Package[] $packages #[Serialized]
- * @property ModuleGroup[] $module_groups #[Serialized]
  * @property BaseModule[] $modules #[Serialized]
  * @property Class_[] $classes #[Serialized]
  * @property Paths $paths
@@ -25,5 +24,17 @@ class App extends Object_ {
     /** @noinspection PhpUnused */
     protected function get_paths(): Paths {
         return Paths::new();
+    }
+
+    public function boot(): void {
+        foreach ($this->modules as $module) {
+            $module->boot();
+        }
+    }
+
+    public function terminate(): void {
+        foreach (array_reverse($this->modules) as $module) {
+            $module->terminate();
+        }
     }
 }

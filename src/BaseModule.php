@@ -36,4 +36,10 @@ class BaseModule extends Object_
      * @var string[]
      */
     public static array $classes = [];
+
+    public function boot(): void {
+    }
+
+    public function terminate(): void {
+    }
 }
