@@ -83,5 +83,15 @@ namespace Osm {
 
         return $classes;
     }
+
+    function handle_errors() {
+        ini_set('display_errors', 'Off');
+        error_reporting(-1);
+        set_error_handler(function($level, $message, $file = '', $line = 0, $context = []) {
+            if (error_reporting() & $level) {
+                throw new \ErrorException($message, 0, $level, $file, $line);
+            }
+        });
+    }
 }
 

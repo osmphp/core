@@ -69,7 +69,9 @@ class Reflection extends Property
 
         $this->parsePhpDocType($this->getDocCommentType());
 
-        $reflection = $this->reflection->getType();
+        if (!($reflection = $this->reflection->getType())) {
+            return;
+        }
 
         if ($reflection instanceof \ReflectionUnionType) {
             $reflection = $reflection->getTypes()[0];
