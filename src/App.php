@@ -37,4 +37,9 @@ class App extends Object_ {
             $module->terminate();
         }
     }
+
+    public function create(string $className, ...$args): object {
+        $className = $this->classes[$className]->generated_name ?? $className;
+        return new $className(...$args);
+    }
 }

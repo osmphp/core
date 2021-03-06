@@ -6,11 +6,17 @@ namespace Osm\Core\Samples\Some;
 
 use Osm\Core\BaseModule;
 use Osm\Core\Object_;
+use Symfony\Component\Lock\Store\InMemoryStore;
 
 /** @noinspection PhpUnused */
 class Module extends BaseModule
 {
     public static array $traits = [
         Object_::class => Traits\ObjectTrait::class,
+        InMemoryStore::class => Traits\InMemoryStoreTrait::class,
+    ];
+
+    public static array $classes = [
+        InMemoryStore::class,
     ];
 }

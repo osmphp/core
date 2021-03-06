@@ -30,7 +30,7 @@ final class Apps
     }
 
     public static function run(RuntimeApp|CoreApp $app, callable $callback): mixed {
-        return self::switch($app, function($app) use ($callback ) {
+        return self::switch($app, function(RuntimeApp|CoreApp $app) use ($callback ) {
             $app->boot();
             try {
                 return $callback($app);
