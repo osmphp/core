@@ -67,7 +67,7 @@ EOT;
 
                 $output .= <<<EOT
         /* @see \\{$trait->name}::{$method->name}() */
-        abstract {$method->access} function {$method->name} ({$method->parameters}){$method->returns}; 
+        {$method->access} function {$method->name} ({$method->parameters}){$method->returns} {} 
 
 EOT;
              }
