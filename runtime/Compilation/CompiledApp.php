@@ -335,7 +335,9 @@ class CompiledApp extends Object_
             $this->loadExternalClasses($classes, $module);
         }
 
-        foreach ($this->packages as $package) {
+        // search for app class in source roots not even having
+        // a single module in it
+        foreach ($this->unsorted_packages as $package) {
             foreach ($package->source_roots as $namespace => $path) {
                 $this->loadAppClass($classes, $package, $namespace, $path);
             }
