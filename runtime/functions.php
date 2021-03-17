@@ -18,6 +18,17 @@ namespace Osm {
         return $filename;
     }
 
+    function touch($filename) {
+        if (is_file($filename)) {
+            return $filename;
+        }
+
+        make_dir_for($filename);
+        \touch($filename);
+
+        return $filename;
+    }
+
     function merge($target, ...$sources) {
         foreach ($sources as $source) {
             $target = mergeFromSource($target, $source);
