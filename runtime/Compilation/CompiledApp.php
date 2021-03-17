@@ -101,13 +101,13 @@ class CompiledApp extends Object_
         bool $root = false): Package
     {
         $require = array_keys((array)($json->require ?? []));
-        if ($this->load_dev_sections) {
+        if ($this->load_dev_sections && $root) {
             $require = array_merge($require,
                 array_keys((array)($json->{'require-dev'} ?? [])));
         }
 
         $sourceRoots = (array)($json->autoload?->{"psr-4"} ?? []);
-        if ($this->load_dev_sections) {
+        if ($this->load_dev_sections && $root) {
             $sourceRoots = array_merge($sourceRoots,
                 (array)($json->{'autoload-dev'}?->{"psr-4"} ?? []));
 
