@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Osm {
 
     use Osm\Core\App;
+    use Osm\Core\Class_;
 
     function make_dir($dir) {
         if (!is_dir($dir)) {
@@ -78,7 +79,11 @@ namespace Osm {
         return $target;
     }
 
-    function get_descendant_classes_by_name(string $baseClassName) {
+    /**
+     * @param string $baseClassName
+     * @return Class_[]
+     */
+    function get_descendant_classes(string $baseClassName): array {
         global $osm_app; /* @var App $osm_app */
 
         $classes = [];
@@ -88,7 +93,19 @@ namespace Osm {
                 continue;
             }
 
+            $classes[] = $class;
+        }
+
+        return $classes;
+    }
+
+    function get_descendant_classes_by_name(string $baseClassName): array {
+        $classes = [];
+
+        foreach (get_descendant_classes($baseClassName) as $class) {
             $className = $class->name;
+
+            /** @noinspection PhpUndefinedFieldInspection */
             $classes[$className::$name] = $className;
         }
 

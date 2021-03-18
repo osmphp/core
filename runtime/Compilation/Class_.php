@@ -33,6 +33,7 @@ use PhpParser\Node;
  * @property Property[] $properties
  * @property Method[] $actual_methods
  * @property Method[] $methods
+ * @property array|object[] $attributes
  * @property Node[] $ast
  * @property PhpQuery $imports
  * @property Context $type_context
@@ -388,5 +389,19 @@ class Class_ extends Object_
     /** @noinspection PhpUnused */
     protected function get_namespace(): string {
         return $this->reflection->getNamespaceName();
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_attributes(): array {
+        global $osm_app; /* @var Compiler $osm_app */
+
+        $attributes = [];
+
+        foreach ($this->reflection->getAttributes() as $attribute) {
+            $osm_app->app->addAttribute($attributes, $attribute->getName(),
+                $attribute->newInstance());
+        }
+
+        return $attributes;
     }
 }
