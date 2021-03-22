@@ -253,7 +253,7 @@ class CompiledApp extends Object_
         });
     }
 
-    protected function sort(array $items, string $pluralTitle,
+    public function sort(array $items, string $pluralTitle,
         callable $callback): array
     {
         $count = count($items);
@@ -292,7 +292,7 @@ class CompiledApp extends Object_
         return null;
     }
 
-    protected function hasUnresolvedDependency(Package|Module $item,
+    protected function hasUnresolvedDependency(object $item,
         array $items, array $positions): bool
     {
         foreach ($item->after as $key) {

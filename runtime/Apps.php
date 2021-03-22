@@ -19,14 +19,16 @@ final class Apps
     public static function enter(RuntimeApp|CoreApp $app): void {
         global $osm_app; /* @var RuntimeApp|CoreApp $osm_app */
 
-        array_push(self::$apps, $app);
+        if ($osm_app) {
+            array_push(self::$apps, $osm_app);
+        }
         $osm_app = $app;
     }
 
     public static function leave(): void {
         global $osm_app; /* @var App $osm_app */
 
-        $osm_app = array_pop(self::$apps);
+        $osm_app = count(self::$apps) ? array_pop(self::$apps) : null;
     }
 
     public static function run(RuntimeApp|CoreApp $app, callable $callback): mixed {
