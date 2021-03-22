@@ -52,6 +52,7 @@ final class Apps
     }
 
     public static function create(string $appClassName): CoreApp {
+        $appClassName = self::appClassName($appClassName);
         $paths = self::paths($appClassName);
 
         /** @noinspection PhpIncludeInspection */
@@ -63,6 +64,7 @@ final class Apps
 
     #[Runs(Compiler::class)]
     public static function compile(string $appClassName): void {
+        $appClassName = self::appClassName($appClassName);
         $compiler = Compiler::new(['app_class_name' => $appClassName]);
 
         self::run($compiler, function(Compiler $compiler) {
@@ -73,6 +75,7 @@ final class Apps
     }
 
     public static function hint(string $appClassName) {
+        $appClassName = self::appClassName($appClassName);
         $compiler = Compiler::new(['app_class_name' => $appClassName]);
 
         self::run($compiler, function(Compiler $compiler) {
@@ -84,6 +87,19 @@ final class Apps
         $new = self::$paths_class_name . "::new";
 
         return $new(['app_class_name' => $appClassName]);
+    }
+
+    protected static function appClassName(string $appClassName): string {
+        if (class_exists($appClassName)) {
+            return $appClassName;
+        }
+
+        $appClassName = str_replace('_', '\\', $appClassName);
+        if (class_exists($appClassName)) {
+            return $appClassName;
+        }
+
+        return "{$appClassName}\\App";
     }
 
 }
