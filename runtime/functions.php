@@ -9,7 +9,7 @@ namespace Osm {
 
     function make_dir($dir) {
         if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
+            @mkdir($dir, 0777, true);
         }
         return $dir;
     }
