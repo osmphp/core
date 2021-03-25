@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Osm\Runtime\Compilation;
 
 use Osm\Core\App;
+use Osm\Core\Attributes\Name;
 use Osm\Core\BaseModule;
 use Osm\Runtime\Exceptions\CircularDependency;
 use Osm\Runtime\Hints\ComposerLock;
@@ -186,10 +187,15 @@ class CompiledApp extends Object_
             return;
         }
 
+        $reflection = new \ReflectionClass($className);
+        $name = isset($reflection->getAttributes(Name::class)[0])
+            ? $reflection->getAttributes(Name::class)[0]->newInstance()->name
+            : $osm_app->paths->className($className, '\\Module');
+
         $modules[$className] = Module::new([
             'package_name' => $package->name,
             'class_name' => $className,
-            'name' => $osm_app->paths->className($className, '\\Module'),
+            'name' => $name,
             'path' => rtrim($path, "/\\"),
             'after' => array_unique(array_merge($className::$after,
                 $className::$requires)),
