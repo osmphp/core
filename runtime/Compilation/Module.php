@@ -16,6 +16,7 @@ use Osm\Runtime\Traits\Serializable;
  * @property string[] $traits
  * @property ?string $app_class_name
  * @property string[] $requires
+ * @property string $namespace
  */
 class Module extends Object_
 {
@@ -25,4 +26,9 @@ class Module extends Object_
         return $this->class_name;
     }
 
+    /** @noinspection PhpUnused */
+    protected function get_namespace(): string {
+        return substr($this->class_name, 0,
+            strrpos($this->class_name, '\\'));
+    }
 }

@@ -12,6 +12,7 @@ use Osm\Core\Attributes\Serialized;
  * @property string $name #[Serialized]
  * @property string $path #[Serialized]
  * @property string $package_name #[Serialized]
+ * @property string $namespace #[Serialized]
  */
 class BaseModule extends Object_
 {
