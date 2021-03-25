@@ -5,24 +5,12 @@ declare(strict_types=1);
 namespace Osm\Core;
 
 use Osm\Core\Attributes\Serialized;
+use Osm\Core\Traits\Reflection;
 use Osm\Runtime\Object_ as BaseObject;
 
-/**
- * @property Class_ $__class
- */
 class Object_ extends BaseObject
 {
-    /** @noinspection PhpUnused */
-    protected function get___class(): Class_ {
-        global $osm_app; /* @var App $osm_app */
-
-        $className = $this::class;
-        if (str_starts_with($className, $osm_app->name)) {
-            $className = substr($className, strlen($osm_app->name) + 1);
-        }
-
-        return $osm_app->classes[$className];
-    }
+    use Reflection;
 
     protected static function createInstance(string $className, array $data): static {
         global $osm_app; /* @var App $osm_app */
