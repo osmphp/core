@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Osm {
 
     use Osm\Core\App;
+    use Osm\Core\Attributes\Name;
     use Osm\Core\Class_;
 
     function make_dir($dir) {
@@ -100,16 +101,16 @@ namespace Osm {
     }
 
     function get_descendant_classes_by_name(string $baseClassName): array {
-        $classes = [];
+        $classNames = [];
 
         foreach (get_descendant_classes($baseClassName) as $class) {
-            $className = $class->name;
-
-            /** @noinspection PhpUndefinedFieldInspection */
-            $classes[$className::$name] = $className;
+            /* @var Name $name */
+            if ($name = $class->attributes[Name::class] ?? null) {
+                $classNames[$name->name] = $class->name;
+            }
         }
 
-        return $classes;
+        return $classNames;
     }
 
     function handle_errors() {
