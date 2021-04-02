@@ -6,6 +6,7 @@ namespace Osm {
 
     use Osm\Core\App;
     use Osm\Core\Attributes\Name;
+    use Osm\Core\Attributes\Serialized;
     use Osm\Core\Class_;
 
     function make_dir($dir) {
@@ -122,5 +123,38 @@ namespace Osm {
             }
         });
     }
-}
 
+    function dehydrate(mixed $value): mixed {
+        global $osm_app; /* @var App $osm_app */
+
+        if (is_object($value)) {
+            $result = new \stdClass();
+
+            $class = $value->__class ?? $osm_app->classes[$value::class] ?? null;
+            if ($class) {
+                foreach ($class->properties as $property) {
+                    if (isset($property->attributes[Serialized::class])) {
+                        $result->{$property->name} =
+                            dehydrate($value->{$property->name});
+                    }
+                }
+            }
+            else {
+                foreach ($value as $key => $item) {
+                    $result->$key = dehydrate($item);
+                }
+            }
+
+            return $result;
+        }
+
+        if (is_array($value)) {
+            return array_map(fn($item) => dehydrate($item), $value);
+        }
+        if ($value instanceof \Traversable) {
+            return dehydrate(iterator_to_array($value));
+        }
+
+        return $value;
+    }
+}
