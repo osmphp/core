@@ -27,6 +27,10 @@ class Object_ extends BaseObject
             if (isset($this->__class->properties[$propertyName]
                 ->attributes[Serialized::class]))
             {
+                // force computing the property
+                /** @noinspection PhpExpressionResultUnusedInspection */
+                $this->{$propertyName};
+
                 $propertyNames[] = $propertyName;
             }
         }
