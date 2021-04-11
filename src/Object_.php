@@ -23,16 +23,15 @@ class Object_ extends BaseObject
     public function __sleep(): array {
         $propertyNames = [];
 
-        foreach (get_object_vars($this) as $propertyName => $value) {
-            if (isset($this->__class->properties[$propertyName]
-                ->attributes[Serialized::class]))
-            {
-                // force computing the property
-                /** @noinspection PhpExpressionResultUnusedInspection */
-                $this->{$propertyName};
-
-                $propertyNames[] = $propertyName;
+        foreach ($this->__class->properties as $property) {
+            if (!isset($property->attributes[Serialized::class])) {
+                continue;
             }
+
+            /** @noinspection PhpExpressionResultUnusedInspection */
+            $this->{$property->name};
+
+            $propertyNames[] = $property->name;
         }
 
         return $propertyNames;
