@@ -88,8 +88,32 @@ EOT
             /* @var Node\Attribute $node */
             $class = $node->name->toString();
             $args = [];
+            $namedArgs = [];
             foreach ($node->args ?? [] as $arg) {
-                $args[] = $evaluator->evaluateSilently($arg->value);
+                if ($arg->name) {
+                    $namedArgs[$arg->name->name] =
+                        $evaluator->evaluateSilently($arg->value);
+                }
+                else {
+                    $args[] = $evaluator->evaluateSilently($arg->value);
+                }
+            }
+
+            if (count($namedArgs)) {
+                $constructor = (new \ReflectionClass($class))->getConstructor();
+
+                foreach ($constructor->getParameters() as $index => $parameter) {
+                    if ($index < count($args)) {
+                        continue;
+                    }
+
+                    if (isset($namedArgs[$parameter->getName()])) {
+                        $args[] = $namedArgs[$parameter->getName()];
+                        continue;
+                    }
+
+                    $args[] = $parameter->getDefaultValue();
+                }
             }
 
             try {
