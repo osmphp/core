@@ -35,4 +35,8 @@ trait DynamicTrait
     public function newMethod(): bool {
         return false;
     }
+
+    protected function around_voidMethod(callable $proceed): void {
+        $proceed();
+    }
 }

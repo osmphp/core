@@ -31,4 +31,7 @@ class Some extends Object_
     protected function sqr(int $x): int {
         return $x * $x;
     }
+
+    protected function voidMethod(): void {
+    }
 }

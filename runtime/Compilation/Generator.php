@@ -4,6 +4,7 @@
 namespace Osm\Runtime\Compilation;
 
 use Osm\Core\Attributes\Expected;
+use Osm\Core\Exceptions\NotImplemented;
 use Osm\Runtime\Compilation\Methods\Merged as MergedMethod;
 use Osm\Runtime\Object_;
 
@@ -96,36 +97,39 @@ EOT;
                 continue;
             }
 
+            $return = $this->isVoid($method) ? '' : 'return ';
             if ($method->uses_func_get_args) {
                 $output .= "\n\n        protected function __parent_{$method->name} (...\$args){$method->returns} {" .
-                    "\n            return parent::{$method->name}(...\$args);\n        }" .
+                    "\n            {$return}parent::{$method->name}(...\$args);\n        }" .
                     "\n\n        {$method->access} function {$method->name} ({$method->parameters}){$method->returns} {" .
                     "\n            \$args = func_get_args();" .
-                    "{$this->generateOpenParameterListTraitCall($method, 0)}\n        }";
+                    "{$this->generateOpenParameterListTraitCall($method, $return, 0)}\n        }";
             }
             else {
                 $output .= "\n\n        protected function __parent_{$method->name} ({$method->parameters}){$method->returns} {" .
-                    "\n            return parent::{$method->name}({$method->arguments});\n        }" .
+                    "\n            {$return}parent::{$method->name}({$method->arguments});\n        }" .
                     "\n\n        {$method->access} function {$method->name} ({$method->parameters}){$method->returns} {" .
-                    "{$this->generateTraitCall($method, 0)}\n        }";
+                    "{$this->generateTraitCall($method, $return, 0)}\n        }";
             }
         }
 
         return $output;
     }
 
-    protected function generateTraitCall(Method $method, int $adviceIndex): string {
+    protected function generateTraitCall(Method $method, string $return,
+        int $adviceIndex): string
+    {
         $indent = str_repeat(' ', ($adviceIndex + 3) * 4);
 
         if ($adviceIndex >= count($method->around)) {
-            return "\n{$indent}return \$this->__parent_{$method->name}({$method->arguments});";
+            return "\n{$indent}{$return}\$this->__parent_{$method->name}({$method->arguments});";
         }
 
         $around = $method->around[count($method->around) - $adviceIndex - 1];
         $comma = $method->arguments ? ', ' : '';
 
-        $output = "\n{$indent}return \$this->{$around->alias}(function({$method->parameters}) {";
-        $output .= $this->generateTraitCall($method, $adviceIndex + 1);
+        $output = "\n{$indent}{$return}\$this->{$around->alias}(function({$method->parameters}) {";
+        $output .= $this->generateTraitCall($method, $return, $adviceIndex + 1);
         $output .= "\n{$indent}}{$comma}{$method->arguments});";
 
         return $output;
@@ -137,21 +141,28 @@ EOT;
      * @return string
      */
     protected function generateOpenParameterListTraitCall(Method $method,
-        int $adviceIndex): string
+        string $return, int $adviceIndex): string
     {
         $indent = str_repeat(' ', ($adviceIndex + 3) * 4);
 
         if ($adviceIndex >= count($method->around)) {
-            return "\n{$indent}return \$this->__parent_{$method->name}(...\$args);";
+            return "\n{$indent}{$return}\$this->__parent_{$method->name}(...\$args);";
         }
 
         $around = $method->around[count($method->around) - $adviceIndex - 1];
         $comma = $method->arguments ? ', ' : '';
 
-        $output = "\n{$indent}return \$this->{$around->alias} (function({$method->parameters}) use (\$args){";
-        $output .= $this->generateOpenParameterListTraitCall($method, $adviceIndex + 1);
+        $output = "\n{$indent}{$return}\$this->{$around->alias} (function({$method->parameters}) use (\$args){";
+        $output .= $this->generateOpenParameterListTraitCall($method,
+            $return, $adviceIndex + 1);
         $output .= "\n{$indent}}{$comma}{$method->arguments});";
 
         return $output;
+    }
+
+    protected function isVoid(Method $method): bool {
+        return ($type = $method->reflection->getReturnType()) &&
+            $type instanceof \ReflectionNamedType &&
+            $type->getName() == 'void';
     }
 }
