@@ -9,7 +9,7 @@ use Osm\Core\Exceptions\UndefinedArrayKey;
 class Array_ implements \ArrayAccess, \IteratorAggregate
 {
     public function __construct(
-        protected array $items,
+        public array $items,
         protected string|\Closure $message)
     {
     }
