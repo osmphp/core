@@ -27,7 +27,7 @@ class Array_ implements \ArrayAccess, \IteratorAggregate
             $message = $this->message;
             $message = is_callable($message)
                 ? $message($offset)
-                : str_replace(':key', $offset, $message);
+                : str_replace(':key', (string)$offset, $message);
 
             throw new UndefinedArrayKey($message, 0, $e);
         }
