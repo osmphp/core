@@ -12,6 +12,8 @@ use phpDocumentor\Reflection\DocBlock\Tags\Property as PhpDocProperty;
 use Osm\Core\Attributes\Expected;
 use PhpParser\ConstExprEvaluator;
 use PhpParser\Node;
+use PhpParser\Node\Expr;
+use PhpParser\ConstExprEvaluationException;
 use PhpParser\NodeVisitor\NameResolver;
 
 /**
@@ -67,6 +69,8 @@ class PhpDoc extends Property
         $stmt = $osm_app->php_parser->parse(<<<EOT
 <?php
 
+namespace {$this->class->namespace};
+
 {$this->class->imports->toString()}
 
 class Test {
@@ -81,7 +85,20 @@ EOT
             ->findOne(fn(Node $node) => $node instanceof Node\Stmt\Property)
             ->stmts[0];
 
-        $evaluator = new ConstExprEvaluator();
+        $evaluator = new ConstExprEvaluator(function (Expr $expr) {
+            if ($expr instanceof Expr\ClassConstFetch) {
+                $class = $expr->class->toString();
+                $name = $expr->name->toString();
+
+                return $name == 'class'
+                    ? $class
+                    : (new \ReflectionClass($class))->getConstant($name);
+            }
+
+            throw new ConstExprEvaluationException(
+                "Expression of type {$expr->getType()} cannot be evaluated"
+            );
+        });
 
         $attributes = $this->attributes;
         foreach ($stmt->attrGroups[0]->attrs ?? [] as $node) {
