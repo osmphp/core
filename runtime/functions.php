@@ -134,14 +134,19 @@ namespace Osm {
             if ($class) {
                 foreach ($class->properties as $property) {
                     if (isset($property->attributes[Serialized::class])) {
-                        $result->{$property->name} =
-                            dehydrate($value->{$property->name});
+                        $dehydrated = dehydrate($value->{$property->name});
+                        if ($dehydrated !== null) {
+                            $result->{$property->name} = $dehydrated;
+                        }
                     }
                 }
             }
             else {
                 foreach ($value as $key => $item) {
-                    $result->$key = dehydrate($item);
+                    $dehydrated = dehydrate($item);
+                    if ($dehydrated !== null) {
+                        $result->$key = $dehydrated;
+                    }
                 }
             }
 
