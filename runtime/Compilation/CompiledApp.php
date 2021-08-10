@@ -25,6 +25,7 @@ use Osm\Runtime\Traits\Serializable;
  * @property bool $load_dev_sections
  * @property Package[] $unsorted_packages
  * @property Module[] $unsorted_modules
+ * @property Module[] $referenced_modules
  * @property Package[] $packages
  * @property Module[] $modules
  * @property Class_[] $classes
@@ -135,9 +136,12 @@ class CompiledApp extends Object_
             }
         }
 
-        $modules = $this->unloadUnreferencedModules($modules);
-
         return $modules;
+    }
+
+    /** @noinspection PhpUnused */
+    protected function get_referenced_modules(): array {
+        return $this->unloadUnreferencedModules($this->unsorted_modules);
     }
 
     protected function loadModules(array &$modules, Package $package,
@@ -233,7 +237,7 @@ class CompiledApp extends Object_
     protected function get_packages(): array {
         $packages = [];
 
-        foreach ($this->unsorted_modules as $module) {
+        foreach ($this->referenced_modules as $module) {
             $packages[$module->package_name] =
                 $this->unsorted_packages[$module->package_name];
         }
@@ -247,7 +251,7 @@ class CompiledApp extends Object_
 
     /** @noinspection PhpUnused */
     protected function get_modules(): array {
-        return $this->sort($this->unsorted_modules, 'Modules', function($positions) {
+        return $this->sort($this->referenced_modules, 'Modules', function($positions) {
             $parentKeys = array_flip(array_keys($this->packages));
 
             return function(Module $a, Module $b) use ($positions, $parentKeys) {
