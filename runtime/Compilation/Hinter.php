@@ -45,6 +45,11 @@ EOT;
                     )
                     : '';
 
+
+                if ($property->array) {
+                    $type .= '[]';
+                }
+
                 $output .= <<<EOT
      * @property {$type} \${$property->name}
      * @see \\{$trait->name}::\${$property->name}
