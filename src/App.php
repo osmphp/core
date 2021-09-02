@@ -20,6 +20,7 @@ use Osm\Runtime\Apps;
  */
 class App extends Object_ {
     public static bool $load_dev_sections = false;
+    public static bool $load_all = false;
 
     /** @noinspection PhpUnused */
     protected function get_paths(): Paths {
