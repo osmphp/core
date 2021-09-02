@@ -23,6 +23,7 @@ use Osm\Runtime\Traits\Serializable;
  * @property \stdClass|PackageHint $composer_json
  * @property \stdClass|ComposerLock $composer_lock
  * @property bool $load_dev_sections
+ * @property bool $load_all
  * @property Package[] $unsorted_packages
  * @property Module[] $unsorted_modules
  * @property Module[] $referenced_modules
@@ -74,6 +75,12 @@ class CompiledApp extends Object_
         $class = $this->class_name; /* @var App $class */
 
         return $class::$load_dev_sections;
+    }
+
+    protected function get_load_all(): bool {
+        $class = $this->class_name; /* @var App $class */
+
+        return $class::$load_all;
     }
 
     /** @noinspection PhpUnused */
@@ -141,7 +148,9 @@ class CompiledApp extends Object_
 
     /** @noinspection PhpUnused */
     protected function get_referenced_modules(): array {
-        return $this->unloadUnreferencedModules($this->unsorted_modules);
+        return $this->load_all
+            ? $this->unsorted_modules
+            : $this->unloadUnreferencedModules($this->unsorted_modules);
     }
 
     protected function loadModules(array &$modules, Package $package,
