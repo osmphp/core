@@ -196,7 +196,7 @@ class CompiledApp extends Object_
             return;
         }
 
-        if (!$this->matches($className)) {
+        if (!$this->load_all && !$this->matches($className)) {
             return;
         }
 
