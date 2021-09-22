@@ -469,7 +469,7 @@ class CompiledApp extends Object_
             if ($result) {
                 $result .= " | ";
             }
-            if (!$type->isBuiltin()) {
+            if (!$type->isBuiltin() && $type->getName() !== 'static') {
                 $result .= '\\';
             }
             $result .= $type->getName();

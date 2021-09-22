@@ -9,4 +9,4 @@ require 'vendor/autoload.php';
 handle_errors();
 
 Apps::$project_path = getcwd();
-Apps::hint(ltrim($argv[1], '\\'));
+Apps::hint('Osm_Project');

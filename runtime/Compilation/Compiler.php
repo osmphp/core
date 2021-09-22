@@ -169,7 +169,15 @@ class Compiler extends App
 
     /** @noinspection PhpUnused */
     public function hint() {
-        $output = "<?php\n\n";
+        $output = <<<EOT
+<?php
+
+/** @noinspection PhpUndefinedClassInspection */
+/** @noinspection PhpFullyQualifiedNameUsageInspection */
+/** @noinspection PhpInconsistentReturnPointsInspection */
+
+
+EOT;
 
         foreach ($this->app->classes as $class) {
             if ($class->generated_name) {
