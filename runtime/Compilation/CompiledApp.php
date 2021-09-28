@@ -12,6 +12,7 @@ use Osm\Runtime\Hints\ComposerLock;
 use Osm\Runtime\Hints\PackageHint;
 use Osm\Runtime\Object_;
 use Osm\Runtime\Traits\Serializable;
+use function Osm\sort_by_dependency;
 
 /**
  * Contains data about the application being compiled
@@ -251,98 +252,26 @@ class CompiledApp extends Object_
                 $this->unsorted_packages[$module->package_name];
         }
 
-        return $this->sort($packages, 'Packages', function($positions) {
-            return function(Package $a, Package $b) use ($positions) {
-                return $positions[$a->name] <=> $positions[$b->name];
-            };
-        });
+        return sort_by_dependency($packages, 'Packages',
+            fn($positions) =>
+                fn(Package $a, Package $b) =>
+                    $positions[$a->name] <=> $positions[$b->name]
+            );
     }
 
     /** @noinspection PhpUnused */
     protected function get_modules(): array {
-        return $this->sort($this->referenced_modules, 'Modules', function($positions) {
-            $parentKeys = array_flip(array_keys($this->packages));
+        return sort_by_dependency($this->referenced_modules, 'Modules',
+            function($positions) {
+                $parentKeys = array_flip(array_keys($this->packages));
 
-            return function(Module $a, Module $b) use ($positions, $parentKeys) {
-                return ($result = $parentKeys[$a->package_name]
-                        <=> $parentKeys[$b->package_name]) != 0
-                    ? $result
-                    : $positions[$a->class_name] <=> $positions[$b->class_name];
-            };
-        });
-    }
-
-    public function sort(array $items, string $pluralTitle,
-        callable $callback): array
-    {
-        $count = count($items);
-
-        $positions = [];
-
-        for ($position = 0; $position < $count; $position++) {
-            $key = $this->findItemWithAlreadyResolvedDependencies($items, $positions);
-            if (!$key) {
-                throw $this->circularDependency($items, $positions, $pluralTitle);
+                return fn(Module $a, Module $b) =>
+                    ($result =
+                        $parentKeys[$a->package_name] <=> $parentKeys[$b->package_name]) != 0
+                        ? $result
+                        : $positions[$a->class_name] <=> $positions[$b->class_name];
             }
-
-            $positions[$key] = $position;
-        }
-
-        uasort($items, $callback($positions));
-
-        return $items;
-    }
-
-    protected function findItemWithAlreadyResolvedDependencies(array $items,
-        array $positions): ?string
-    {
-        foreach ($items as $key => $item) {
-            if (isset($positions[$key])) {
-                continue;
-            }
-
-            if ($this->hasUnresolvedDependency($item, $items, $positions)) {
-                continue;
-            }
-
-            return $key;
-        }
-
-        return null;
-    }
-
-    protected function hasUnresolvedDependency(object $item,
-        array $items, array $positions): bool
-    {
-        foreach ($item->after as $key) {
-            if (!isset($items[$key])) {
-                // no such package - don't consider it a dependency
-                continue;
-            }
-
-            if (!isset($positions[$key])) {
-                // dependencies not added to the position array are not
-                // resolved yet
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    protected function circularDependency(array $items, array $positions,
-        string $pluralTitle)
-    {
-        $circular = [];
-
-        foreach ($items as $key => $item) {
-            if (!isset($positions[$key])) {
-                $circular[] = $key;
-            }
-        }
-        return new CircularDependency(
-            sprintf('%s with circular dependencies found: %s',
-            $pluralTitle, implode(', ', $circular)));
+        );
     }
 
     /** @noinspection PhpUnused */

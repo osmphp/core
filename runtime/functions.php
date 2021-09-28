@@ -8,6 +8,7 @@ namespace Osm {
     use Osm\Core\Attributes\Name;
     use Osm\Core\Attributes\Serialized;
     use Osm\Core\Class_;
+    use Osm\Runtime\Exceptions\CircularDependency;
 
     function make_dir($dir) {
         if (!is_dir($dir)) {
@@ -161,5 +162,88 @@ namespace Osm {
         }
 
         return $value;
+    }
+
+    /**
+     * Sorts the keyed array of items by dependency.
+     *
+     * @param array $items
+     * @param string $pluralTitle
+     * @param callable $callback
+     *
+     * @return array
+     */
+    function sort_by_dependency(array $items, string $pluralTitle,
+        callable $callback): array
+    {
+        $count = count($items);
+
+        $positions = [];
+
+        for ($position = 0; $position < $count; $position++) {
+            $key = findItemWithAlreadyResolvedDependencies($items, $positions);
+            if (!$key) {
+                throw circularDependency($items, $positions, $pluralTitle);
+            }
+
+            $positions[$key] = $position;
+        }
+
+        uasort($items, $callback($positions));
+
+        return $items;
+    }
+
+    function findItemWithAlreadyResolvedDependencies(array $items,
+        array $positions): ?string
+    {
+        foreach ($items as $key => $item) {
+            if (isset($positions[$key])) {
+                continue;
+            }
+
+            if (hasUnresolvedDependency($item, $items, $positions)) {
+                continue;
+            }
+
+            return $key;
+        }
+
+        return null;
+    }
+
+    function hasUnresolvedDependency(object $item, array $items,
+        array $positions): bool
+    {
+        foreach ($item->after as $key) {
+            if (!isset($items[$key])) {
+                // no such package - don't consider it a dependency
+                continue;
+            }
+
+            if (!isset($positions[$key])) {
+                // dependencies not added to the position array are not
+                // resolved yet
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function circularDependency(array $items, array $positions,
+        string $pluralTitle): CircularDependency
+    {
+        $circular = [];
+
+        foreach ($items as $key => $item) {
+            if (!isset($positions[$key])) {
+                $circular[] = $key;
+            }
+        }
+
+        return new CircularDependency(
+            sprintf('%s with circular dependencies found: %s',
+            $pluralTitle, implode(', ', $circular)));
     }
 }
