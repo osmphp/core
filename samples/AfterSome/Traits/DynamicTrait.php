@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Osm\Core\Samples\AfterSome\Traits;
 
 use Osm\Core\App;
+use Osm\Core\Attributes\UseIn;
 use Osm\Core\Samples\Some\Some;
 
 /**
@@ -13,6 +14,7 @@ use Osm\Core\Samples\Some\Some;
  * @property bool $round_pi
  * @property App $app
  */
+#[UseIn(Some::class)]
 trait DynamicTrait
 {
     /** @noinspection PhpUnused */

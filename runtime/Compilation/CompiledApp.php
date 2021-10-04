@@ -6,7 +6,10 @@ namespace Osm\Runtime\Compilation;
 
 use Osm\Core\App;
 use Osm\Core\Attributes\Name;
+use Osm\Core\Attributes\UseIn;
 use Osm\Core\BaseModule;
+use Osm\Core\Exceptions\NotImplemented;
+use Osm\Core\Exceptions\NotSupported;
 use Osm\Runtime\Exceptions\CircularDependency;
 use Osm\Runtime\Hints\ComposerLock;
 use Osm\Runtime\Hints\PackageHint;
@@ -206,6 +209,13 @@ class CompiledApp extends Object_
             ? $reflection->getAttributes(Name::class)[0]->newInstance()->name
             : $osm_app->paths->className($className, '\\Module');
 
+        if (!empty($className::$traits)) {
+            throw new NotSupported("'$className::\$traits' property is no longer supported. Instead, use '#[UseIn]' attribute.");
+        }
+
+        $this->loadTraits("{$absolutePath}/Traits",
+            "{$namespace}Traits\\", $traits);
+
         $modules[$className] = Module::new([
             'package_name' => $package->name,
             'class_name' => $className,
@@ -213,7 +223,7 @@ class CompiledApp extends Object_
             'path' => rtrim($path, "/\\"),
             'after' => array_unique(array_merge($className::$after,
                 $className::$requires)),
-            'traits' => $className::$traits,
+            'traits' => $traits,
             'requires' => $className::$requires,
             'app_class_name' => $className::$app_class_name,
         ]);
@@ -444,5 +454,58 @@ class CompiledApp extends Object_
         while ($changed);
 
         return $result;
+    }
+
+    protected function loadTraits(string $absolutePath, string $namespace,
+        array &$traits = null): void
+    {
+        if (!$traits) {
+            $traits = [];
+        }
+
+        if (!is_dir($absolutePath)) {
+            return;
+        }
+
+        foreach (new \DirectoryIterator($absolutePath) as $fileInfo) {
+            /* @var \SplFileInfo $fileInfo */
+            if ($fileInfo->isDot()) {
+                continue;
+            }
+
+            if ($fileInfo->isDir()) {
+                $this->loadTraits(
+                    "{$absolutePath}/{$fileInfo->getFilename()}",
+                    "{$namespace}{$fileInfo->getFilename()}\\",
+                    $traits);
+
+                continue;
+            }
+
+            if ($fileInfo->getExtension() != 'php') {
+                continue;
+            }
+
+            $this->loadTrait(
+                "{$namespace}{$fileInfo->getBasename('.php')}",
+                $traits);
+        }
+    }
+
+    protected function loadTrait(string $className, array &$traits): void {
+        $reflection = new \ReflectionClass($className);
+
+        if (!$reflection->isTrait()) {
+            return;
+        }
+
+        if (empty($attributes = $reflection->getAttributes(UseIn::class))) {
+            return;
+        }
+
+        /* @var UseIn $useIn */
+        $useIn = $attributes[0]->newInstance();
+
+        $traits[$useIn->class_name] = $className;
     }
 }
