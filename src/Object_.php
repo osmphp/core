@@ -15,6 +15,10 @@ class Object_ extends BaseObject
     protected static function createInstance(string $className, array $data): static {
         global $osm_app; /* @var App $osm_app */
 
+        if (str_starts_with($className, "{$osm_app->name}\\")) {
+            $className = mb_substr($className, mb_strlen($osm_app->name) + 1);
+        }
+
         $data['__class'] = $class = $osm_app->classes[$className];
 
         return parent::createInstance($class->generated_name ?? $className, $data);
