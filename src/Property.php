@@ -16,6 +16,7 @@ use Osm\Core\Attributes\Serialized;
  * @property bool $nullable #[Serialized]
  * @property array|object[] $attributes #[Serialized]
  * @property ?Method $getter
+ * @property ?string $module_class_name #[Serialized]
  */
 class Property extends Object_
 {

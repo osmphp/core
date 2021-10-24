@@ -17,6 +17,7 @@ use Osm\Core\Attributes\Serialized;
  * @property Method[] $methods #[Serialized]
  * @property array|object[] $attributes #[Serialized]
  * @property ?string $generated_name #[Serialized]
+ * @property ?string $module_class_name #[Serialized]
  */
 class Class_ extends Object_
 {

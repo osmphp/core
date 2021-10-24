@@ -18,6 +18,7 @@ use Osm\Core\Attributes\Expected;
  * @property bool $nullable
  * @property array|object[] $attributes
  * @property ?Method $getter
+ * @property ?string $module_class_name
  */
 class Property extends Object_
 {

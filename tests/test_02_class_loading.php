@@ -33,6 +33,11 @@ class test_02_class_loading extends TestCase
                 $compiler->app->classes);
             $this->assertArrayNotHasKey(\Osm\Core\Samples\Excluded\Module::class,
                 $compiler->app->classes);
+
+            // AND each class has a module class name assigned
+            $this->assertTrue($compiler->app->classes
+                [\Osm\Core\Samples\Some\Module::class]->module_class_name ==
+                    \Osm\Core\Samples\Some\Module::class);
         });
     }
 

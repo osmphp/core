@@ -7,6 +7,7 @@ namespace Osm\Core\Tests;
 use Osm\Core\Samples\App;
 use Osm\Core\Samples\Attributes\Marker;
 use Osm\Core\Samples\Attributes\Repeatable;
+use Osm\Core\Samples\Some\Module;
 use Osm\Core\Samples\Some\Other;
 use Osm\Core\Samples\Some\Some;
 use Osm\Runtime\Apps;
@@ -30,6 +31,7 @@ class test_04_property_loading extends TestCase
             $this->assertFalse($name->nullable);
             $this->assertTrue(isset($name->attributes[Marker::class]));
             $this->assertEquals('marker', $name->attributes[Marker::class]->name);
+            $this->assertTrue($name->module_class_name == Module::class);
         });
     }
 
@@ -48,6 +50,7 @@ class test_04_property_loading extends TestCase
             $this->assertFalse($children->nullable);
             $this->assertTrue(isset($children->attributes[Marker::class]));
             $this->assertEquals('owns', $children->attributes[Marker::class]->name);
+            $this->assertTrue($children->module_class_name == Module::class);
         });
     }
 

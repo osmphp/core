@@ -341,6 +341,7 @@ class CompiledApp extends Object_
             $classes[$className] = Class_::new([
                 'name' => $className,
                 'filename' => "{$absolutePath}/{$fileInfo->getFilename()}",
+                'module_class_name' => $module->class_name,
             ]);
         }
     }

@@ -43,6 +43,7 @@ use PhpParser\Node;
  * @property string $short_name
  * @property bool $abstract
  * @property string $namespace
+ * @property ?string $module_class_name
  */
 class Class_ extends Object_
 {
@@ -154,6 +155,7 @@ class Class_ extends Object_
             'class' => $this,
             'name' => $property->getVariableName(),
             'phpdoc' => $property,
+            'module_class_name' => $this->module_class_name,
         ]);
     }
 
@@ -184,6 +186,7 @@ class Class_ extends Object_
             'class' => $this,
             'name' => $property->getName(),
             'reflection' => $property,
+            'module_class_name' => $this->module_class_name,
         ]);
     }
 
