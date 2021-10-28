@@ -12,7 +12,7 @@ use Osm\Core\Samples\Some\Some;
  * @property int $width
  * @property int $area_size
  * @property bool $round_pi
- * @property App $app
+ * @property ?App $app
  */
 #[UseIn(Some::class)]
 trait DynamicTrait

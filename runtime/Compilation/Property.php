@@ -31,15 +31,16 @@ class Property extends Object_
     protected function parsePhpDocType(string $phpDocType): void {
         foreach (explode('|', $phpDocType) as $type) {
             $type = trim($type);
-            $type = ltrim($type, '\\');
-
-            if (!$type || $type == 'mixed') {
-                continue;
-            }
 
             if (str_starts_with($type, '?')) {
                 $this->nullable = true;
                 $type = substr($type, strlen('?'));
+            }
+
+            $type = ltrim($type, '\\');
+
+            if (!$type || $type == 'mixed') {
+                continue;
             }
 
             if ($type == 'array') {
