@@ -7,7 +7,7 @@ use Osm\Core\Attributes\Type;
 use Osm\Core\Object_;
 
 /**
- * @property string $type #[Serialized]
+ * @property ?string $type #[Serialized]
  */
 trait SubTypes
 {
