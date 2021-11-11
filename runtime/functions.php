@@ -8,6 +8,7 @@ namespace Osm {
     use Osm\Core\Attributes\Name;
     use Osm\Core\Attributes\Serialized;
     use Osm\Core\Class_;
+    use Osm\Core\Exceptions\NotSupported;
     use Osm\Runtime\Exceptions\CircularDependency;
 
     function make_dir($dir) {
@@ -162,6 +163,46 @@ namespace Osm {
         }
 
         return $value;
+    }
+
+    function hydrate(string $className, mixed $value) {
+        global $osm_app; /* @var App $osm_app */
+
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_array($value)) {
+            return array_map(fn($item) => hydrate($className, $item), $value);
+        }
+
+        if (!is_object($value)) {
+            throw new NotSupported("Can't instantiate '{$className}' " .
+                "from a non-object value");
+        }
+
+        $new = "{$className}::new";
+        $data = (array)$value;
+        $class = $osm_app->classes[$className];
+
+        foreach ($data as $propertyName => &$propertyValue) {
+            if (!($property = $class->properties[$propertyName] ?? null)) {
+                continue;
+            }
+
+            if (!isset($osm_app->classes[$property->type])) {
+                continue;
+            }
+
+            $propertyValue = hydrate($property->type, $propertyValue);
+        }
+
+        $object = $new($data);
+        if (method_exists($object, '__wakeup')) {
+            $object->__wakeup();
+        }
+
+        return $object;
     }
 
     /**
