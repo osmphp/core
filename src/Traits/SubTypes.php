@@ -9,7 +9,7 @@ use Osm\Core\Object_;
 /**
  * @property string $type #[Serialized]
  */
-class SubTypes
+trait SubTypes
 {
     protected function get_type(): ?string {
         /* @var Object_|static $this */
