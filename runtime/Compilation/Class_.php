@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Osm\Runtime\Compilation;
 
+use Osm\Core\Attributes\Type;
 use Osm\Runtime\Compilation\Properties\Merged as MergedProperty;
 use Osm\Runtime\Compilation\Methods\Merged as MergedMethod;
 use Osm\Runtime\Object_;
@@ -44,6 +45,7 @@ use PhpParser\Node;
  * @property bool $abstract
  * @property string $namespace
  * @property ?string $module_class_name
+ * @property string[]|null $types
  */
 class Class_ extends Object_
 {
@@ -406,5 +408,25 @@ class Class_ extends Object_
         }
 
         return $attributes;
+    }
+
+    protected function get_types(): ?array {
+        global $osm_app; /* @var Compiler $osm_app */
+
+        $types = [];
+
+        foreach ($osm_app->app->classes as $class) {
+            if (!is_subclass_of($class->name, $this->name, true)) {
+                continue;
+            }
+
+            if (!($type = $class->attributes[Type::class] ?? null)) {
+                continue;
+            }
+
+            $types[$type->name] = $class->name;
+        }
+
+        return empty($types) ? null : $types;
     }
 }
