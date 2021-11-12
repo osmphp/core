@@ -181,12 +181,12 @@ namespace Osm {
                 "from a non-object value");
         }
 
+        $class = $osm_app->classes[$className];
         $new = isset($value->type) && isset($class->types[$value->type])
             ? "{$class->types[$value->type]}::new"
             : "{$className}::new";
 
         $data = (array)$value;
-        $class = $osm_app->classes[$className];
 
         foreach ($data as $propertyName => &$propertyValue) {
             if (!($property = $class->properties[$propertyName] ?? null)) {
