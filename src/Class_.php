@@ -32,4 +32,10 @@ class Class_ extends Object_
 
         return $osm_app->classes[$this->parent_class_name];
     }
+
+    public function getTypeClassName(?string $type): string {
+        return $type !== null && isset($this->types[$type])
+            ? $this->types[$type]
+            : $this->name;
+    }
 }

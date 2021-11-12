@@ -182,9 +182,7 @@ namespace Osm {
         }
 
         $class = $osm_app->classes[$className];
-        $new = isset($value->type) && isset($class->types[$value->type])
-            ? "{$class->types[$value->type]}::new"
-            : "{$className}::new";
+        $new = "{$class->getTypeClassName($value->type ?? null)}::new";
 
         $data = (array)$value;
 
