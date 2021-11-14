@@ -165,15 +165,16 @@ namespace Osm {
         return $value;
     }
 
-    function hydrate(string $className, mixed $value) {
+    function hydrate(string $className, mixed $value, bool $array = false) {
         global $osm_app; /* @var App $osm_app */
 
         if ($value === null) {
             return null;
         }
 
-        if (is_array($value)) {
-            return array_map(fn($item) => hydrate($className, $item), $value);
+        if ($array) {
+            return array_map(fn($item) => hydrate($className, $item),
+                (array)$value);
         }
 
         if (!is_object($value)) {
@@ -182,7 +183,9 @@ namespace Osm {
         }
 
         $class = $osm_app->classes[$className];
-        $new = "{$class->getTypeClassName($value->type ?? null)}::new";
+        $class = $osm_app->classes[
+            $class->getTypeClassName($value->type ?? null)];
+        $new = "{$class->name}::new";
 
         $data = (array)$value;
 
@@ -195,7 +198,8 @@ namespace Osm {
                 continue;
             }
 
-            $propertyValue = hydrate($property->type, $propertyValue);
+            $propertyValue = hydrate($property->type, $propertyValue,
+                $property->array);
         }
 
         $object = $new($data);
