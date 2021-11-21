@@ -14,6 +14,7 @@ use PhpParser\Node;
 /**
  * @property Class_ $class #[Expected]
  * @property string $name #[Expected]
+ * @property string $class_name
  * @property array|object[] $attributes
  * @property \ReflectionMethod $reflection
  * @property Method[] $around
@@ -156,5 +157,9 @@ class Method extends Object_
         return ($type = $this->reflection->getReturnType())
             ? ': '. $osm_app->app->parseType($type)
             : '';
+    }
+
+    protected function get_class_name(): string {
+        return $this->class->name;
     }
 }
