@@ -74,6 +74,13 @@ EOT;
                 }
 
                 $defaultClassName = $defaultClasses[$traitMethod->name];
+
+                if (!isset($this->class->dynamic_traits[$defaultClassName])) {
+                    // if a static trait overrides a method in
+                    // another static trait, don't alias this override
+                    continue;
+                }
+
                 $output .= "\n            \\{$defaultClassName}::{$traitMethod->name} insteadof \\{$traitMethod->class->name};";
             }
         }
