@@ -28,7 +28,10 @@ class Object_ extends BaseObject
         $propertyNames = [];
 
         foreach ($this->__class->properties as $property) {
-            if (!isset($property->attributes[Serialized::class])) {
+            /* @var Serialized $serialized */
+            if (!($serialized = $property->attributes[Serialized::class] ?? null) ||
+                $serialized->not_having && isset($value->{$serialized->not_having}))
+            {
                 continue;
             }
 

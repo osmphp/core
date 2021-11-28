@@ -135,11 +135,16 @@ namespace Osm {
             $class = $value->__class ?? $osm_app->classes[$value::class] ?? null;
             if ($class) {
                 foreach ($class->properties as $property) {
-                    if (isset($property->attributes[Serialized::class])) {
-                        $dehydrated = dehydrate($value->{$property->name});
-                        if ($dehydrated !== null) {
-                            $result->{$property->name} = $dehydrated;
-                        }
+                    /* @var Serialized $serialized */
+                    if (!($serialized = $property->attributes[Serialized::class] ?? null) ||
+                        $serialized->not_having && isset($value->{$serialized->not_having}))
+                    {
+                        continue;
+                    }
+
+                    $dehydrated = dehydrate($value->{$property->name});
+                    if ($dehydrated !== null) {
+                        $result->{$property->name} = $dehydrated;
                     }
                 }
             }
