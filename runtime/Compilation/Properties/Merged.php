@@ -25,7 +25,7 @@ class Merged extends Property
     }
 
     /** @noinspection PhpUnused */
-    protected function get_nullable(): bool {
+    protected function get_nullable(): ?bool {
         return $this->properties[count($this->properties) - 1]->nullable;
     }
 
