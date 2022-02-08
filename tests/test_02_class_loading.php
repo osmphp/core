@@ -41,6 +41,40 @@ class test_02_class_loading extends TestCase
         });
     }
 
+    public function test_that_parent_classes_are_known() {
+        // GIVEN a compiler configured to compile a sample app
+        $compiler = Compiler::new(['app_class_name' => App::class]);
+
+        Apps::run($compiler, function(Compiler $compiler) {
+            // WHEN you check reflections of module classes
+            // THEN only classes of loaded modules are there
+            $this->assertArrayHasKey(\Osm\Core\Samples\Some\Some::class,
+                $compiler->app->classes);
+
+            // AND each class has a module class name assigned
+            $this->assertTrue($compiler->app->classes
+                [\Osm\Core\Samples\Some\Some::class]->parent_class_name ==
+                    \Osm\Core\Object_::class);
+        });
+    }
+
+    public function test_that_child_classes_are_known() {
+        // GIVEN a compiler configured to compile a sample app
+        $compiler = Compiler::new(['app_class_name' => App::class]);
+
+        Apps::run($compiler, function(Compiler $compiler) {
+            // WHEN you check reflections of module classes
+            // THEN only classes of loaded modules are there
+            $this->assertArrayHasKey(\Osm\Core\Samples\Some\Some::class,
+                $compiler->app->classes);
+
+            // AND each class has a module class name assigned
+            $this->assertTrue(in_array(\Osm\Core\Samples\Some\Other::class,
+                $compiler->app->classes[\Osm\Core\Samples\Some\Some::class]
+                    ->child_class_names));
+        });
+    }
+
     public function test_that_external_classes_are_loaded() {
         // GIVEN a compiler configured to compile a sample app
         $compiler = Compiler::new(['app_class_name' => App::class]);

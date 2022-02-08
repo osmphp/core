@@ -23,7 +23,9 @@ use PhpParser\Node;
  * Computed:
  *
  * @property \ReflectionClass $reflection
+ * @property ?string $parent_class_name
  * @property Class_ $parent_class
+ * @property string[] $child_class_names
  * @property Class_[] $static_traits
  * @property Class_[] $actual_dynamic_traits
  * @property Class_[] $dynamic_traits
@@ -69,6 +71,24 @@ class Class_ extends Object_
         }
 
         return $osm_app->app->classes[$class->getName()] ?? null;
+    }
+
+    protected function get_parent_class_name(): ?string {
+        return $this->parent_class?->name;
+    }
+
+    protected function get_child_class_names(): array {
+        global $osm_app; /* @var Compiler $osm_app */
+
+        $childClassNames = [];
+
+        foreach ($osm_app->app->classes as $class) {
+            if ($class->parent_class_name == $this->name) {
+                $childClassNames[] = $class->name;
+            }
+        }
+
+        return $childClassNames;
     }
 
     /** @noinspection PhpUnused */

@@ -13,6 +13,7 @@ use Osm\Core\Attributes\Serialized;
  * @property string $name #[Serialized]
  * @property ?string $parent_class_name #[Serialized]
  * @property ?Class_ $parent_class
+ * @property string[] $child_class_names #[Serialized]
  * @property Property[] $properties #[Serialized]
  * @property Method[] $methods #[Serialized]
  * @property array|object[] $attributes #[Serialized]
