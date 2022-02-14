@@ -9,6 +9,7 @@ use Osm\Runtime\Compilation\Properties\Merged as MergedProperty;
 use Osm\Runtime\Compilation\Methods\Merged as MergedMethod;
 use Osm\Runtime\Object_;
 use Osm\Runtime\Traits\Serializable;
+use phpDocumentor\Reflection\DocBlock\Tags\InvalidTag;
 use phpDocumentor\Reflection\DocBlock\Tags\Property as PhpDocProperty;
 use phpDocumentor\Reflection\DocBlockFactory;
 use phpDocumentor\Reflection\Types\Context;
@@ -164,6 +165,11 @@ class Class_ extends Object_
         }
 
         foreach ($docBlock->getTagsByName('property') as $property) {
+            if ($property instanceof InvalidTag) {
+                throw new \Exception("{$this->name}: unfinished " .
+                    "property declaration or {$property->getException()}");
+            }
+
             /* @var PhpDocProperty $property */
             $properties[$property->getVariableName()] =
                 $this->loadDocBlockProperty($property);
