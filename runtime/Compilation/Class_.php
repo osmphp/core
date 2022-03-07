@@ -7,6 +7,7 @@ namespace Osm\Runtime\Compilation;
 use Osm\Core\Attributes\Type;
 use Osm\Runtime\Compilation\Properties\Merged as MergedProperty;
 use Osm\Runtime\Compilation\Methods\Merged as MergedMethod;
+use Osm\Runtime\Exceptions\CompilationError;
 use Osm\Runtime\Object_;
 use Osm\Runtime\Traits\Serializable;
 use phpDocumentor\Reflection\DocBlock\Tags\InvalidTag;
@@ -426,14 +427,20 @@ class Class_ extends Object_
     protected function get_attributes(): array {
         global $osm_app; /* @var Compiler $osm_app */
 
-        $attributes = [];
+        try {
+            $attributes = [];
 
-        foreach ($this->reflection->getAttributes() as $attribute) {
-            $osm_app->app->addAttribute($attributes, $attribute->getName(),
-                $attribute->newInstance());
+            foreach ($this->reflection->getAttributes() as $attribute) {
+                $osm_app->app->addAttribute($attributes, $attribute->getName(),
+                    $attribute->newInstance());
+            }
+
+            return $attributes;
         }
-
-        return $attributes;
+        catch (\Throwable $e) {
+            throw new CompilationError("Can't compile class " .
+                "'{$this->name}': {$e->getMessage()}", previous: $e);
+        }
     }
 
     protected function get_types(): ?array {
